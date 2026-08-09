@@ -46,9 +46,9 @@ export function InputWorkspace(state) {
                 <option value="BB-6205-2RS">Ball Bearing 6205-2RS (Bearings)</option>
                 <option value="IV-GATE-150">Industrial Gate Valve 150 (Valves)</option>
               </select>
-              <button type="button" class="demo-chip" data-action="demo-sku" data-sku="HEX-M12-50" ${busy ? 'disabled' : ''}>HEX-M12-50</button>
-              <button type="button" class="demo-chip" data-action="demo-sku" data-sku="BB-6205-2RS" ${busy ? 'disabled' : ''}>BB-6205-2RS</button>
-              <button type="button" class="demo-chip" data-action="demo-sku" data-sku="IV-GATE-150" ${busy ? 'disabled' : ''}>IV-GATE-150</button>
+              <button type="button" class="demo-chip" data-action="demo-sku" data-sku="HEX-M12-50" ${busy ? 'disabled' : ''}>🔩 HEX-M12-50</button>
+              <button type="button" class="demo-chip" data-action="demo-sku" data-sku="BB-6205-2RS" ${busy ? 'disabled' : ''}>⚙️ BB-6205-2RS</button>
+              <button type="button" class="demo-chip" data-action="demo-sku" data-sku="IV-GATE-150" ${busy ? 'disabled' : ''}>🚰 IV-GATE-150</button>
             </div>
             ${inputErrors.sku ? `<span id="sku-error" class="field-error">${escapeHtml(inputErrors.sku)}</span>` : '<span id="sku-error" class="sr-only"></span>'}
           </div>

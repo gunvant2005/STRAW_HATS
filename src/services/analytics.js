@@ -1,12 +1,35 @@
 /**
  * Analytics & User Tracking Service
- * Integrates Google Analytics 4 (GA4) and maintains a structured event log for user behavior tracking.
+ * Integrates Google Analytics 4 (GA4) with environment-driven measurement ID
+ * and maintains a structured event log for user behavior tracking.
  */
 
-let eventLog = [];
+import { config } from '../config.js';
 
-export function initAnalytics(measurementId = 'G-DEMO123456') {
-  if (typeof window === 'undefined') return;
+let eventLog = [];
+let analyticsInitialized = false;
+
+/**
+ * Initialize Google Analytics 4 with the measurement ID from environment config.
+ * Dynamically injects the gtag.js script tag at runtime so the ID is never hardcoded
+ * in HTML — changing VITE_GA_ID in .env is the only step needed.
+ */
+export function initAnalytics() {
+  if (typeof window === 'undefined' || analyticsInitialized) return;
+
+  const measurementId = config.gaMeasurementId;
+
+  // Skip analytics initialization in development or when explicitly disabled
+  if (!config.enableAnalytics) {
+    analyticsInitialized = true;
+    return;
+  }
+
+  // Dynamically inject the GA4 script tag
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+  document.head.appendChild(script);
 
   // Global window.gtag definition
   window.dataLayer = window.dataLayer || [];
@@ -17,6 +40,8 @@ export function initAnalytics(measurementId = 'G-DEMO123456') {
 
   gtag('js', new Date());
   gtag('config', measurementId, { send_page_view: true });
+
+  analyticsInitialized = true;
 }
 
 export function trackEvent(category, action, label = null, value = null) {
@@ -47,3 +72,4 @@ export function trackPageView(pageName) {
 export function getEventLog() {
   return [...eventLog];
 }
+

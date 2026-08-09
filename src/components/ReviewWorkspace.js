@@ -5,6 +5,25 @@ import { getReviewedCount } from '../state/appState.js';
 
 const undoIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>`;
 
+function ProgressRing(reviewed, total) {
+  if (!total) return '';
+  const pct = Math.round((reviewed / total) * 100);
+  const radius = 16;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (reviewed / total) * circumference;
+  return `
+    <div class="progress-ring" title="${pct}% reviewed">
+      <svg class="progress-ring__svg" width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
+        <circle class="progress-ring__bg" cx="20" cy="20" r="${radius}" />
+        <circle class="progress-ring__fill" cx="20" cy="20" r="${radius}"
+          stroke-dasharray="${circumference}"
+          stroke-dashoffset="${offset}" />
+      </svg>
+      <span class="progress-ring__text">${pct}%</span>
+    </div>
+  `;
+}
+
 export function ReviewWorkspace(state) {
   const queue = state.reviewQueue || [];
   const reviewed = getReviewedCount(state);
@@ -55,11 +74,14 @@ export function ReviewWorkspace(state) {
             ${reviewed} of ${total} fields reviewed
           </p>
         </div>
-        ${
-          reviewed === total
-            ? Badge({ label: 'Queue complete', variant: 'complete' })
-            : Badge({ label: `${pending} pending`, variant: 'needs_review' })
-        }
+        <div style="display:flex;align-items:center;gap:var(--space-3)">
+          ${ProgressRing(reviewed, total)}
+          ${
+            reviewed === total
+              ? Badge({ label: 'Queue complete', variant: 'complete' })
+              : Badge({ label: `${pending} pending`, variant: 'needs_review' })
+          }
+        </div>
       </div>
       <div class="card__body">
         <div class="bulk-actions" role="toolbar" aria-label="Bulk review actions">
@@ -100,12 +122,12 @@ export function ReviewWorkspace(state) {
 
         <div class="review-list">
           ${queue
-            .map((item) => {
+            .map((item, idx) => {
               const field = state.productRecord[item.field];
               const isEditing = state.editingField === item.field;
               const done = item.status !== 'pending';
               return `
-                <article class="review-card ${done ? 'is-done' : ''}" data-review-field="${escapeHtml(item.field)}">
+                <article class="review-card ${done ? 'is-done' : ''}" data-review-field="${escapeHtml(item.field)}" style="animation-delay:${idx * 60}ms">
                   <div class="review-card__header">
                     <strong>${escapeHtml(FIELD_LABELS[item.field] || item.field)}</strong>
                     <div style="display:flex;gap:6px;align-items:center">

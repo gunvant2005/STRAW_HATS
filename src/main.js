@@ -48,6 +48,16 @@ import { loadStateSnapshot } from './services/storage.js';
 
 const app = document.getElementById('app');
 
+/** Simple debounce utility for performance-sensitive inputs */
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+}
+const debouncedSetOutputFilter = debounce((value) => setOutputFilter(value), 150);
+
 /** Global Error Boundary Handler */
 window.addEventListener('error', (event) => {
   console.error('Unhandled runtime error:', event.error || event.message);
@@ -222,10 +232,103 @@ function renderMain(state) {
   return InputWorkspace(state);
 }
 
+/**
+ * Lightweight DOM morphing engine — patches only changed nodes instead of
+ * destroying the entire tree with innerHTML on every state change.
+ * Preserves focus, scroll position, CSS transitions, and avoids forced layout reflows.
+ */
+function morphDom(existingRoot, newHtml) {
+  const template = document.createElement('template');
+  template.innerHTML = newHtml;
+  const newRoot = template.content.firstElementChild;
+  if (!newRoot) {
+    existingRoot.innerHTML = newHtml;
+    return;
+  }
+  patchNode(existingRoot.firstElementChild, newRoot, existingRoot);
+}
+
+function patchNode(oldNode, newNode, parent) {
+  // No existing node — append new
+  if (!oldNode) {
+    parent.appendChild(newNode.cloneNode(true));
+    return;
+  }
+  // No new node — remove old
+  if (!newNode) {
+    parent.removeChild(oldNode);
+    return;
+  }
+  // Different tag or node type — full replace
+  if (oldNode.nodeName !== newNode.nodeName || oldNode.nodeType !== newNode.nodeType) {
+    parent.replaceChild(newNode.cloneNode(true), oldNode);
+    return;
+  }
+  // Text node — update content if different
+  if (oldNode.nodeType === Node.TEXT_NODE) {
+    if (oldNode.textContent !== newNode.textContent) {
+      oldNode.textContent = newNode.textContent;
+    }
+    return;
+  }
+  // Element node — patch attributes and recurse children
+  if (oldNode.nodeType === Node.ELEMENT_NODE) {
+    patchAttributes(oldNode, newNode);
+    // Skip active input/textarea elements to preserve user typing state
+    if (
+      oldNode === document.activeElement &&
+      (oldNode.tagName === 'INPUT' || oldNode.tagName === 'TEXTAREA')
+    ) {
+      return;
+    }
+    patchChildren(oldNode, newNode);
+  }
+}
+
+function patchAttributes(oldEl, newEl) {
+  // Remove old attributes not in new
+  const oldAttrs = oldEl.attributes;
+  for (let i = oldAttrs.length - 1; i >= 0; i--) {
+    const name = oldAttrs[i].name;
+    if (!newEl.hasAttribute(name)) {
+      oldEl.removeAttribute(name);
+    }
+  }
+  // Set new/changed attributes
+  const newAttrs = newEl.attributes;
+  for (let i = 0; i < newAttrs.length; i++) {
+    const { name, value } = newAttrs[i];
+    if (oldEl.getAttribute(name) !== value) {
+      oldEl.setAttribute(name, value);
+    }
+  }
+  // Sync checked/value properties for form elements
+  if (newEl.tagName === 'INPUT' && oldEl !== document.activeElement) {
+    if (newEl.type === 'checkbox' || newEl.type === 'radio') {
+      if (oldEl.checked !== newEl.checked) oldEl.checked = newEl.checked;
+    } else {
+      if (oldEl.value !== newEl.getAttribute('value')) {
+        oldEl.value = newEl.getAttribute('value') || '';
+      }
+    }
+  }
+}
+
+function patchChildren(oldEl, newEl) {
+  const oldChildren = Array.from(oldEl.childNodes);
+  const newChildren = Array.from(newEl.childNodes);
+  const maxLen = Math.max(oldChildren.length, newChildren.length);
+  for (let i = 0; i < maxLen; i++) {
+    patchNode(oldChildren[i] || null, newChildren[i] || null, oldEl);
+  }
+}
+
+let lastRenderedHtml = '';
+
 function render(state) {
   applyThemeAttribute(state.theme);
-  snapshotActiveInput();
-  app.innerHTML = `
+
+  const newHtml = `
     <div class="app-shell">
       ${Header(state)}
       <div class="app-body">
@@ -241,9 +344,24 @@ function render(state) {
     </div>
   `;
 
+  // Skip render if output is identical (pure optimization)
+  if (newHtml === lastRenderedHtml) {
+    renderToasts(state.toasts);
+    return;
+  }
+  lastRenderedHtml = newHtml;
+
+  // First render — use innerHTML; subsequent renders — morph diff
+  if (!app.firstElementChild) {
+    app.innerHTML = newHtml;
+  } else {
+    snapshotActiveInput();
+    morphDom(app, newHtml);
+    restoreActiveInput();
+  }
+
   renderToasts(state.toasts);
   restoreTransientUi(state);
-  restoreActiveInput();
 }
 
 function restoreTransientUi(state) {
@@ -505,7 +623,7 @@ function bindGlobalEvents() {
     }
 
     if (e.target.id === 'output-filter') {
-      setOutputFilter(e.target.value);
+      debouncedSetOutputFilter(e.target.value);
       return;
     }
 

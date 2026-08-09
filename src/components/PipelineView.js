@@ -41,10 +41,11 @@ export function PipelineView(state) {
           <ol class="pipeline-list">
             ${pipelineSteps
               .map((step, i) => {
+                const checkIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`;
                 return `
-                  <li class="pipeline-step is-${cssClass(step.status)}">
+                  <li class="pipeline-step is-${cssClass(step.status)}" style="animation-delay:${i * 50}ms">
                     <span class="pipeline-step__num" aria-hidden="true">${
-                      step.status === 'complete' ? '✓' : i + 1
+                      step.status === 'complete' ? checkIcon : i + 1
                     }</span>
                     <div>
                       <div class="pipeline-step__label">${escapeHtml(step.label)}</div>

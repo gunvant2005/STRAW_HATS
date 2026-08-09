@@ -1,70 +1,110 @@
 <div align="center">
 
-# ⚡ Product Intelligence — Industrial Commerce
-### *Enterprise AI-Powered Product Intelligence & Data Normalization Engine*
+# ⚡ Product Intelligence — Industrial Commerce Engine
+### *Enterprise AI-Powered Product Data Intelligence, Normalization & Security Engine*
 
-[![Vite](https://img.shields.io/badge/Vite-8.2-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![JavaScript](https://img.shields.io/badge/Vanilla_JS-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![Vitest](https://img.shields.io/badge/Vitest-5_Suites_Passing-252529?style=for-the-badge&logo=vitest&logoColor=73C21B)](https://vitest.dev/)
-[![Security](https://img.shields.io/badge/Security-A%2B_CSP_%7C_XSS_%7C_SQLi-success?style=for-the-badge&logo=shield)](https://github.com/gunvant2005/AI_VENGERS)
+[![Vite](https://img.shields.io/badge/Frontend-Vite_8.2-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![JavaScript](https://img.shields.io/badge/Language-Vanilla_JS_ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Node.js](https://img.shields.io/badge/Backend-Node.js_v18+-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![Vitest](https://img.shields.io/badge/Vitest-6_Suites_Passing-252529?style=for-the-badge&logo=vitest&logoColor=73C21B)](https://vitest.dev/)
+[![CI/CD Pipeline](https://github.com/STRAW_HATS/product-intelligence/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/STRAW_HATS/product-intelligence/actions)
+[![Security](https://img.shields.io/badge/Security-A%2B_PBKDF2_%7C_JWT_%7C_SQLi-success?style=for-the-badge&logo=shield)](https://github.com/STRAW_HATS/product-intelligence)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
 <br/>
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/gunvant2005/AI_VENGERS)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/STRAW_HATS/product-intelligence)
 &nbsp;&nbsp;
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/gunvant2005/AI_VENGERS)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/STRAW_HATS/product-intelligence)
 
 </div>
 
 ---
 
-## 📖 Overview
+## 🎥 Live Interactive Preview
 
-**Product Intelligence** is an enterprise-grade AI intelligence platform designed for industrial manufacturers, B2B distributors, and e-commerce catalogs. It ingests fragmented product inputs (SKUs, technical PDFs, spec sheets, supplier copy, and images) and normalizes them into **structured, evidence-linked, commerce-ready records**.
-
----
-
-## 🌟 Key Platform Features
-
-| Feature Module | Description & Capabilities |
-|---|---|
-| 📥 **Input Workspace** | Multi-modal ingestion of SKU codes, supplier text copy, technical PDF data sheets, and product images with instant preset loading. |
-| ⚡ **6-Stage Pipeline Engine** | Asynchronous execution: `Ingestion` → `Parsing` → `Extraction` → `Enrichment` → `Validation` → `Human Review` → `Export`. |
-| 🔍 **Evidence Traceability** | Every extracted attribute links directly to source document citations, page numbers, and exact text snippets. |
-| 🛡️ **Validation & Anomaly Engine** | Real-time confidence scoring ($0-100\%$), missing attribute detection, unit standardization, and taxonomy checks. |
-| 👥 **Human-in-the-Loop Review** | Inline attribute editing, single-click approvals/rejections, review notes, bulk operations, and multi-step undo (`Ctrl+Z`). |
-| 🔐 **Role-Based Access Control** | Granular RBAC permissions for `Admin` (Full Access), `Reviewer` (Edit & Approve), and `Viewer` (Read-only). |
-| 💾 **Auto-Save & Crash Recovery** | Continuous `localStorage` snapshotting with 1-click state backup export and restore. |
-| 📦 **Multi-Format Handoff** | One-click export and clipboard copy for **Full JSON**, **CSV Flat File**, and **PIM-ready JSON**. |
+![Product Intelligence Live Demo](C:/Users/dhake/.gemini/antigravity-ide/brain/cdd326c9-1c98-4195-8a68-bfd4cd74ddc9/frontend_ui_check_1786245499686.webp)
 
 ---
 
-## 🏗️ System Architecture
+## 📖 Executive Overview
+
+**Product Intelligence** is an enterprise-grade AI intelligence platform engineered for industrial manufacturers, B2B distributors, and e-commerce catalogs. It ingests unstructured & fragmented product inputs (SKU codes, technical PDFs, spec sheets, supplier copy, and images) and normalizes them into **structured, evidence-linked, commerce-ready records**.
+
+---
+
+## 🌟 Key Platform Modules & Capabilities
+
+| Module Icon | Feature Name | Description & Capabilities |
+|:---:|---|---|
+| 📥 | **Input Workspace** | Multi-modal ingestion of SKU codes, supplier text copy, technical PDF data sheets, and product images with 1-click preset loaders. |
+| ⚡ | **6-Stage Pipeline Engine** | Asynchronous execution pipeline: `Ingestion` → `Parsing` → `Extraction` → `Enrichment` → `Validation` → `Human Review` → `Export`. |
+| 📊 | **Live KPI Analytics Bar** | Real-time workspace metrics calculation: Total Attributes, Avg Confidence Score, Validation Quality Grade, and Pending Review items. |
+| 🔍 | **Evidence Traceability** | Every extracted attribute links directly to source document citations, page numbers, and exact text snippets. |
+| 🛡️ | **Validation & Anomaly Engine** | Real-time confidence scoring ($0-100\%$), missing attribute detection, unit standardization, and taxonomy rules. |
+| 👥 | **Human-in-the-Loop Review** | Inline attribute editing, single-click approvals/rejections, reviewer notes, bulk operations, and multi-step undo (`Ctrl+Z`). |
+| 🔐 | **Role-Based Access Control** | Granular RBAC session permissions for `Admin` (Full Access), `Reviewer` (Edit & Approve), and `Viewer` (Read-only). |
+| 💾 | **Auto-Save & Crash Recovery** | Continuous `localStorage` snapshotting with 1-click state backup export and auto-recovery on browser crash. |
+| 📦 | **Multi-Format Handoff** | One-click export and clipboard copy for **Full JSON**, **CSV Flat File**, and **PIM-ready JSON**. |
+
+---
+
+## 🏗️ System Architecture & Data Flow
 
 ```mermaid
-flowchart LR
-    A[Unstructured Inputs] -->|SKU / Text / PDF / Image| B(Ingestion Stage)
-    B --> C(Parsing Engine)
-    C --> D(AI Attribute Extraction)
-    D --> E(Taxonomy & Unit Enrichment)
-    E --> F[Confidence & Validation Engine]
-    F -->|Low Confidence / Anomaly| G[Human-in-the-Loop Review Queue]
-    F -->|Validated Data| H[PIM & Commerce Handoff]
-    G -->|Approved / Edited| H
-    H --> I[JSON / CSV / PIM Payload]
+flowchart TB
+    subgraph Client ["💻 Client Layer (Vite + Vanilla JS)"]
+        A[Unstructured Inputs] -->|SKU / Text / PDF / Image| B(Input Workspace)
+        B --> C(4-Stage Navigation Rail)
+        C --> D(Interactive Review Queue)
+        D --> E(Commerce Data Export)
+    end
+
+    subgraph Backend ["⚡ Enterprise Node.js Backend Server"]
+        F(Security Middleware Filter) --> G(Crypto & Password Service)
+        G --> H(Pipeline Engine)
+        H --> I(Validation & Anomaly Engine)
+    end
+
+    subgraph Storage ["🗄️ Relational Database Engine"]
+        J[(Users & RBAC Roles)]
+        K[(Products & Attributes)]
+        L[(Evidence Citations)]
+        M[(Audit & Review Logs)]
+    end
+
+    B -->|REST API Request| F
+    H -->|Parameterized Queries| K
+    H -->|Citations| L
+    D -->|Audit Logs| M
 ```
 
 ---
 
-## 🔒 Security & Compliance Matrix
+## 🔒 Enterprise Security & Database Matrix
 
+- 🛡️ **PBKDF2 Password Encryption**: Cryptographic PBKDF2 hashing with unique 16-byte random salts (`crypto.randomBytes()`) and 10,000 iterations to eliminate dictionary & rainbow table attacks.
+- 🛡️ **Timing Attack Protection**: Constant-time hash verification (`crypto.timingSafeEqual()`) preventing side-channel execution timing analysis.
+- 🛡️ **HMAC SHA-256 JWT Authentication**: Stateless JWT signature generation and verification for session control.
+- 🛡️ **SQL Injection Immunity**: Database query engine using parameterized query binding (`sanitizeSqlParam()`) and constraint rules.
 - 🛡️ **XSS Sanitization**: Dynamic HTML escaping (`sanitizeInput()`) on all client rendering.
-- 🛡️ **SQLi / Injection Guard**: Query pattern filter (`sanitizeSqlInjection()`) stripping malicious command injections.
-- 🛡️ **Content Security Policy**: Meta CSP restricting script origins, font sources, and connect endpoints.
+- 🛡️ **Content Security Policy (CSP)**: Strict headers restricting script origins, font sources, and connect endpoints.
 - 🛡️ **File Payload Security**: MIME type & extension whitelisting (`.pdf`, `.png`, `.jpg`, `.webp`) with a strict 10MB limit.
 - 🛡️ **Rate Limiting**: Request throttling (`pipelineRateLimiter`, max 5 requests / 10 sec window).
 - 🛡️ **Authentication & RBAC**: Session permission guards preventing Unauthorized/Viewer role modifications.
+
+---
+
+## 🔌 REST API Specification Overview
+
+| Endpoint | Method | Security Guard | Description |
+|---|:---:|:---:|---|
+| `/api/v1/health` | `GET` | Public | System health check & version info |
+| `/api/v1/auth/register` | `POST` | Public | Register user account with PBKDF2 password encryption |
+| `/api/v1/auth/login` | `POST` | Public | Authenticate credentials and issue signed JWT token |
+| `/api/v1/pipeline/run` | `POST` | Rate Limiter | Execute extraction pipeline and persist record to database |
+| `/api/v1/products` | `GET` | JWT Bearer | Fetch product record, attributes, and evidence citations |
+| `/api/v1/reviews/action` | `POST` | RBAC Role Guard | Record human review action (Approve, Edit, Reject) with audit log |
 
 ---
 
@@ -78,27 +118,31 @@ flowchart LR
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/gunvant2005/AI_VENGERS.git
-cd AI_VENGERS
+git clone https://github.com/STRAW_HATS/product-intelligence.git
+cd product-intelligence
 
 # 2. Install dependencies
 npm install
 
-# 3. Start local development server
+# 3. Start local frontend development server
 npm run dev
 
-# 4. Run Vitest automated test suite
+# 4. Start Node.js backend HTTP API server
+npm run server
+
+# 5. Run Vitest automated test suite (6 coverage modules)
 npm run test
 
-# 5. Build for production
+# 6. Build for production
 npm run build
 ```
 
-Open your browser at `http://localhost:5173`.
+Frontend local server: `http://localhost:5173`  
+Backend API server: `http://localhost:5000`
 
 ---
 
-## 🧪 Automated Testing Suite
+## 🧪 Automated Testing Suite Matrix
 
 Configured with **Vitest** ([vite.config.js](vite.config.js)) for high reliability:
 
@@ -106,19 +150,20 @@ Configured with **Vitest** ([vite.config.js](vite.config.js)) for high reliabili
 npm run test
 ```
 
-### 5 Test Coverage Modules:
+### 6 Test Coverage Modules:
 1. `src/__tests__/pipeline.test.js` — Pipeline engine & fallback SKU generator
 2. `src/__tests__/validation.test.js` — Validation rules & anomaly detection engine
 3. `src/__tests__/export.test.js` — Full JSON, CSV, and PIM format builders
 4. `src/__tests__/security.test.js` — XSS escaping, file upload bounds, and rate limiting
-5. `src/__tests__/auth.test.js` — RBAC permissions, role switching, and SQL/password validators
+5. `src/__tests__/auth.test.js` — RBAC permissions, role switching, and password rules
+6. `src/__tests__/backend.test.js` — Database persistence, PBKDF2 hashing, JWT signing & SQLi immunity
 
 ---
 
 ## ⌨️ UX Keyboard Shortcuts
 
 | Shortcut | Action |
-|---|---|
+|:---:|---|
 | `Ctrl` + `Enter` | Submit Input Form / Approve Active Review Item |
 | `Ctrl` + `S` | Quick Export Full Product JSON Record |
 | `Ctrl` + `Z` | Undo Last Review Queue Action |
@@ -128,7 +173,7 @@ npm run test
 
 ## 📄 Documentation Links
 
-- 📘 [API Specification & Schemas](API_DOCUMENTATION.md)
+- 📘 [API Specification & Data Schemas](API_DOCUMENTATION.md)
 - 💾 [Disaster Recovery & Backup SOP](BACKUP_RECOVERY.md)
 - 📊 [13-Point Quality & Audit Report](C:\Users\dhake\.gemini\antigravity-ide\brain\04982c0f-3423-47a6-a8a3-fb7d3174db0e\audit_report.md)
 
@@ -136,7 +181,7 @@ npm run test
 
 <div align="center">
 
-Made with ❤️ by **Team AI_VENGERS**  
+Made with ❤️ by **Team STRAW_HATS**  
 *Licensed under the [MIT License](LICENSE)*
 
 </div>

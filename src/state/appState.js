@@ -1,4 +1,5 @@
 import { FIELD_LABELS, FIELD_ORDER } from '../data/products.js';
+import { saveStateSnapshot } from '../services/storage.js';
 
 export const PIPELINE_STEPS = [
   { id: 'ingestion', label: 'Ingestion' },
@@ -84,8 +85,6 @@ export function subscribe(listener) {
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
-
-import { saveStateSnapshot } from '../services/storage.js';
 
 function notify() {
   saveStateSnapshot(state);

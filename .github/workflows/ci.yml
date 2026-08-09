@@ -1,0 +1,40 @@
+name: Enterprise CI-CD Pipeline
+
+on:
+  push:
+    branches: ['main', 'master', 'dev']
+  pull_request:
+    branches: ['main', 'master']
+
+jobs:
+  build-and-test:
+    name: Run Vitest Suite and Build Validation
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: ['18.x', '20.x']
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Execute Automated Test Suite
+        run: npm run test
+
+      - name: Execute Production Build
+        run: npm run build
+
+      - name: Upload Dist Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-build-node-${{ matrix.node-version }}
+          path: dist/

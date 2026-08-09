@@ -4,17 +4,36 @@
   min-height: 100vh;
 }
 
+/* ═══════════════════════════════════════════════════
+   HEADER — Frosted Glass
+   ═══════════════════════════════════════════════════ */
+
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  padding: 0 var(--space-5);
-  background: var(--surface-card);
-  border-bottom: 1px solid var(--border);
+  padding: 0 var(--space-6);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-bottom: 1px solid var(--glass-border);
   position: sticky;
   top: 0;
   z-index: 50;
+  transition: background var(--duration-slow) var(--ease),
+              border-color var(--duration-slow) var(--ease);
+}
+
+.app-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-primary);
+  opacity: 0.6;
 }
 
 .app-header__brand {
@@ -25,16 +44,27 @@
 }
 
 .app-header__logo {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
-  border-radius: var(--radius-sm);
-  background: var(--text-primary);
-  color: var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--gradient-primary);
+  color: #ffffff;
   display: grid;
   place-items: center;
   font-weight: 700;
   font-size: var(--text-sm);
+  letter-spacing: 0.03em;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  transition: transform var(--duration-slow) var(--ease-bounce),
+              box-shadow var(--duration-slow) var(--ease);
+  animation: logoPulse 3s ease-in-out infinite;
+}
+
+.app-header__logo:hover {
+  transform: scale(1.08) rotate(-3deg);
+  box-shadow: var(--shadow-glow);
+  animation-play-state: paused;
 }
 
 .app-header__titles {
@@ -65,11 +95,19 @@
   flex-shrink: 0;
 }
 
+/* ═══════════════════════════════════════════════════
+   BODY LAYOUT
+   ═══════════════════════════════════════════════════ */
+
 .app-body {
   display: grid;
   grid-template-columns: var(--rail-w) 1fr var(--side-w);
   min-height: calc(100vh - var(--header-h));
 }
+
+/* ═══════════════════════════════════════════════════
+   STAGE RAIL
+   ═══════════════════════════════════════════════════ */
 
 .stage-rail {
   background: var(--surface-card);
@@ -82,22 +120,31 @@
   top: var(--header-h);
   height: calc(100vh - var(--header-h));
   overflow-y: auto;
+  transition: background var(--duration-slow) var(--ease);
 }
 
 .stage-rail__label {
   font-size: var(--text-xs);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--text-muted);
   padding: 0 var(--space-2) var(--space-3);
 }
 
+/* ═══════════════════════════════════════════════════
+   MAIN WORKSPACE
+   ═══════════════════════════════════════════════════ */
+
 .main-workspace {
-  padding: var(--space-5);
+  padding: var(--space-6);
   overflow-y: auto;
   min-width: 0;
 }
+
+/* ═══════════════════════════════════════════════════
+   SIDE PANEL
+   ═══════════════════════════════════════════════════ */
 
 .side-panel {
   background: var(--surface-card);
@@ -110,6 +157,7 @@
   top: var(--header-h);
   height: calc(100vh - var(--header-h));
   overflow-y: auto;
+  transition: background var(--duration-slow) var(--ease);
 }
 
 .side-panel__section {
@@ -139,6 +187,7 @@
   gap: var(--space-5);
 }
 
+/* Section headers */
 .section-header {
   display: flex;
   align-items: flex-start;
@@ -159,9 +208,33 @@
   font-size: var(--text-sm);
 }
 
+/* ═══════════════════════════════════════════════════
+   LOGO KEYFRAMES
+   ═══════════════════════════════════════════════════ */
+
+@keyframes logoPulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 16px rgba(37, 99, 235, 0.5), 0 0 24px rgba(124, 58, 237, 0.2);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ═══════════════════════════════════════════════════ */
+
 @media (max-width: 1100px) {
   .app-body {
     grid-template-columns: var(--rail-w) 1fr;
+  }
+
+  .stage-rail {
+    position: sticky;
+    top: var(--header-h);
+    height: auto;
+    max-height: calc(100vh - var(--header-h));
   }
 
   .side-panel {

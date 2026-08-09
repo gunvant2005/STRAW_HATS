@@ -1,4 +1,4 @@
-import { FIELD_LABELS } from '../data/products.js';
+import { FIELD_LABELS, FIELD_ORDER } from '../data/products.js';
 import { Badge, statusLabel, escapeHtml } from './shared/Badge.js';
 import { SkeletonRows } from './shared/Skeleton.js';
 import { EmptyState } from './shared/EmptyState.js';
@@ -19,7 +19,7 @@ export function ProductOutput(state) {
   const isExtracting =
     state.phase === 'processing' &&
     state.pipelineSteps.find((s) => s.id === 'extraction')?.status === 'running';
-  const totalFields = state.productRecord ? FIELD_LABELS.length : 0;
+  const totalFields = state.productRecord ? FIELD_ORDER.length : 0;
 
   let body;
   if (state.phase === 'empty' && !state.productRecord) {
@@ -106,6 +106,35 @@ export function ProductOutput(state) {
     });
   }
 
+  const avgConfidence = state.productRecord && entries.length
+    ? Math.round((entries.reduce((acc, e) => acc + (e.confidence || 0), 0) / entries.length) * 100)
+    : 0;
+  const pendingCount = state.reviewQueue.filter((q) => q.status === 'pending').length;
+  const validationScore = state.validationIssues ? Math.max(0, 100 - state.validationIssues.length * 5) : 100;
+
+  const kpiBar = state.productRecord
+    ? `
+      <div class="kpi-summary-bar">
+        <div class="kpi-card">
+          <span class="kpi-card__label">Total Attributes</span>
+          <span class="kpi-card__val">${entries.length} / ${totalFields}</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-card__label">Avg Confidence</span>
+          <span class="kpi-card__val kpi-card__val--success">${avgConfidence}%</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-card__label">Validation Score</span>
+          <span class="kpi-card__val kpi-card__val--accent">${validationScore}%</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-card__label">Pending Review</span>
+          <span class="kpi-card__val ${pendingCount > 0 ? 'kpi-card__val--warning' : 'kpi-card__val--success'}">${pendingCount}</span>
+        </div>
+      </div>
+    `
+    : '';
+
   return `
     <section class="card" aria-labelledby="output-heading">
       <div class="card__header">
@@ -143,6 +172,7 @@ export function ProductOutput(state) {
         </div>
       </div>
       <div class="card__body" style="padding:0">
+        ${kpiBar}
         ${body}
       </div>
     </section>
