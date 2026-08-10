@@ -1,5 +1,5 @@
 import { registerUser, loginUser, authenticateToken } from '../services/authService.js';
-import { createOrUpdateProductRecord, getProductRecordBySku, recordReviewAction } from '../services/productService.js';
+import { createOrUpdateProductRecord, getProductRecordBySku, recordReviewAction, getAllProducts } from '../services/productService.js';
 import { setSecurityHeaders, applyRateLimit, sanitizeRequestBody } from '../middleware/securityMiddleware.js';
 
 /**
@@ -69,6 +69,12 @@ export async function handleApiRequest(req, res, bodyData) {
       if (!applyRateLimit(req, res)) return;
       const record = await createOrUpdateProductRecord(body);
       sendJson(200, { success: true, record });
+      return;
+    }
+
+    if (pathname === '/api/v1/products/list' && method === 'GET') {
+      const products = getAllProducts();
+      sendJson(200, { success: true, count: products.length, products });
       return;
     }
 

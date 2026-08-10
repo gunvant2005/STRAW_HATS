@@ -21,14 +21,23 @@ function skuSlug() {
   return String(sku).replace(/[^\w.-]+/g, '_');
 }
 
-export function buildFullJson() {
-  const s = getState();
+export function buildFullJson(overrideState = null) {
+  const s = overrideState?.attributes ? {
+    selectedProductId: overrideState.id || overrideState.sku,
+    productTitle: overrideState.title,
+    phase: 'complete',
+    input: { sku: overrideState.sku || '' },
+    productRecord: overrideState.attributes,
+    validationIssues: overrideState.validationIssues || [],
+    reviewQueue: [],
+  } : (overrideState || getState());
+
   const attributes = {};
   for (const key of FIELD_ORDER) {
     const f = s.productRecord?.[key];
     if (!f) continue;
     attributes[key] = {
-      label: FIELD_LABELS[key],
+      label: FIELD_LABELS[key] || key,
       value: f.value,
       confidence: f.confidence,
       status: f.status,
@@ -37,39 +46,47 @@ export function buildFullJson() {
   }
 
   return {
+    sku: s.productRecord?.sku?.value || s.input?.sku || 'product',
     meta: {
       generatedAt: new Date().toISOString(),
       productId: s.selectedProductId,
       displayName: s.productTitle,
       phase: s.phase,
       sourceInputs: {
-        sku: s.input.sku,
-        description: s.input.description,
-        notes: s.input.notes,
-        pdf: s.input.pdf?.name || null,
-        image: s.input.image?.name || null,
+        sku: s.input?.sku,
+        description: s.input?.description,
+        notes: s.input?.notes,
+        pdf: s.input?.pdf?.name || null,
+        image: s.input?.image?.name || null,
       },
+    },
+    metadata: {
+      exportedAt: new Date().toISOString(),
     },
     attributes,
     validation: {
-      issues: s.validationIssues,
+      issues: s.validationIssues || [],
       summary: {
-        errors: s.validationIssues.filter((i) => i.severity === 'error').length,
-        warnings: s.validationIssues.filter((i) => i.severity === 'warning').length,
-        info: s.validationIssues.filter((i) => i.severity === 'info').length,
+        errors: (s.validationIssues || []).filter((i) => i.severity === 'error').length,
+        warnings: (s.validationIssues || []).filter((i) => i.severity === 'warning').length,
+        info: (s.validationIssues || []).filter((i) => i.severity === 'info').length,
       },
     },
     review: {
-      queue: s.reviewQueue,
-      completed: s.reviewQueue.filter((q) => q.status !== 'pending').length,
-      total: s.reviewQueue.length,
+      queue: s.reviewQueue || [],
+      completed: (s.reviewQueue || []).filter((q) => q.status !== 'pending').length,
+      total: (s.reviewQueue || []).length,
     },
   };
 }
 
-export function buildCsv() {
-  const s = getState();
-  const header = ['field', 'label', 'value', 'confidence', 'status', 'source', 'page', 'section'];
+export function buildCsv(overrideState = null) {
+  const s = overrideState?.attributes ? {
+    input: { sku: overrideState.sku },
+    productRecord: overrideState.attributes,
+  } : (overrideState || getState());
+
+  const header = ['SKU', 'Attribute', 'Value', 'Confidence', 'Status', 'Source', 'Page', 'Section'];
   const rows = [header.join(',')];
 
   const escape = (v) => {
@@ -78,13 +95,14 @@ export function buildCsv() {
     return str;
   };
 
-  for (const key of FIELD_ORDER) {
+  const keys = s.productRecord ? Object.keys(s.productRecord) : FIELD_ORDER;
+  for (const key of keys) {
     const f = s.productRecord?.[key];
     if (!f) continue;
     rows.push(
       [
-        key,
-        FIELD_LABELS[key],
+        s.input?.sku || s.productRecord?.sku?.value || 'SKU',
+        FIELD_LABELS[key] || key,
         f.value,
         f.confidence,
         f.status,
@@ -100,23 +118,23 @@ export function buildCsv() {
   return rows.join('\n');
 }
 
-export function buildPimJson() {
-  const s = getState();
-  const productId = s.productRecord?.sku?.value || s.input.sku || 'UNKNOWN';
+export function buildPimJson(overrideState = null) {
+  const s = overrideState?.attributes ? {
+    input: { sku: overrideState.sku },
+    productTitle: overrideState.title,
+    productRecord: overrideState.attributes,
+    reviewQueue: [],
+  } : (overrideState || getState());
 
-  const attributes = FIELD_ORDER.filter((k) => k !== 'sku' && k !== 'mediaTags' && k !== 'compliance' && k !== 'relatedProducts')
-    .map((key) => {
-      const f = s.productRecord?.[key];
-      if (!f) return null;
-      return {
-        code: key.replace(/[A-Z]/g, (m) => `_${m.toLowerCase()}`),
-        label: FIELD_LABELS[key],
-        value: f.value,
-        source: f.status,
-        confidence: Number(f.confidence.toFixed(2)),
-      };
-    })
-    .filter(Boolean);
+  const productId = s.productRecord?.sku?.value || s.input?.sku || 'UNKNOWN';
+
+  const attributes = {};
+  const keys = s.productRecord ? Object.keys(s.productRecord) : FIELD_ORDER;
+  for (const key of keys) {
+    const f = s.productRecord?.[key];
+    if (!f) continue;
+    attributes[key] = f.value;
+  }
 
   const complianceRaw = s.productRecord?.compliance?.value || '';
   const compliance = complianceRaw
@@ -134,7 +152,7 @@ export function buildPimJson() {
     .filter(Boolean);
 
   return {
-    productId,
+    pim_record_id: productId,
     title: s.productRecord?.title?.value || s.productTitle,
     brand: s.productRecord?.brand?.value || '',
     category: s.productRecord?.category?.value || '',
@@ -143,14 +161,14 @@ export function buildPimJson() {
     relatedProducts: related,
     media: [
       {
-        type: s.input.image ? 'image' : 'document',
-        fileName: s.input.image?.name || s.input.pdf?.name || null,
+        type: s.input?.image ? 'image' : 'document',
+        fileName: s.input?.image?.name || s.input?.pdf?.name || null,
         tags: mediaTags,
       },
     ],
     compliance,
     reviewMetadata: {
-      reviewedFields: s.reviewQueue
+      reviewedFields: (s.reviewQueue || [])
         .filter((q) => q.status !== 'pending')
         .map((q) => ({
           field: q.field,

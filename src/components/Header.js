@@ -56,6 +56,12 @@ export function Header(state) {
             ? `<button type="button" class="btn btn--primary btn--sm" data-action="export-json" title="Download Product Record JSON (Ctrl+S)">⬇ Export JSON</button>`
             : ''
         }
+        <button type="button" class="btn btn--secondary btn--sm" data-action="open-db-explorer" title="Open Saved Product Database Explorer">
+          🗄️ DB Explorer
+        </button>
+        <button type="button" class="btn btn--secondary btn--sm" data-action="open-auth-modal" title="User Sign In / Authentication">
+          🔐 ${state.user ? escapeHtml(state.user.username) : 'Sign In'}
+        </button>
         <span class="badge badge--success" style="font-size:11px" title="Auto-saved state snapshot enabled">✓ Auto-saved</span>
         
         <div class="role-selector" title="Switch User Role to test RBAC permissions">

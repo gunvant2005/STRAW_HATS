@@ -38,13 +38,16 @@
 | Module Icon | Feature Name | Description & Capabilities |
 |:---:|---|---|
 | 📥 | **Input Workspace** | Multi-modal ingestion of SKU codes, supplier text copy, technical PDF data sheets, and product images with 1-click preset loaders. |
-| ⚡ | **6-Stage Pipeline Engine** | Asynchronous execution pipeline: `Ingestion` → `Parsing` → `Extraction` → `Enrichment` → `Validation` → `Human Review` → `Export`. |
+| ⚙️ | **Industrial Extraction Engine** | Rule-based & regex technical attribute parser with confidence scoring ($0-100\%$) and automated citation linking. |
+| 🎛️ | **Interactive Filter Pills** | Instant 1-click attribute filtering by `All`, `Reviewed`, `Extracted`, `Inferred`, and `Pending Review`. |
+| 🗄️ | **Product Database Explorer** | Real-time modal inspection of products stored in the relational database with 1-click loading into the workspace. |
+| 🔐 | **PBKDF2 User Auth Modal** | Enterprise authentication modal issuing signed HMAC JWT session tokens with PBKDF2 password encryption. |
+| ⚡ | **7-Stage Pipeline Engine** | Asynchronous execution pipeline: `Ingestion` → `Parsing` → `Extraction` → `Enrichment` → `Validation` → `Human Review` → `Export`. |
 | 📊 | **Live KPI Analytics Bar** | Real-time workspace metrics calculation: Total Attributes, Avg Confidence Score, Validation Quality Grade, and Pending Review items. |
 | 🔍 | **Evidence Traceability** | Every extracted attribute links directly to source document citations, page numbers, and exact text snippets. |
 | 🛡️ | **Validation & Anomaly Engine** | Real-time confidence scoring ($0-100\%$), missing attribute detection, unit standardization, and taxonomy rules. |
 | 👥 | **Human-in-the-Loop Review** | Inline attribute editing, single-click approvals/rejections, reviewer notes, bulk operations, and multi-step undo (`Ctrl+Z`). |
-| 🔐 | **Role-Based Access Control** | Granular RBAC session permissions for `Admin` (Full Access), `Reviewer` (Edit & Approve), and `Viewer` (Read-only). |
-| 💾 | **Auto-Save & Crash Recovery** | Continuous `localStorage` snapshotting with 1-click state backup export and auto-recovery on browser crash. |
+| 💾 | **Database Auto-Persistence** | File-backed database serialization (`server/db/data.json`) + `localStorage` client state auto-recovery on restart. |
 | 📦 | **Multi-Format Handoff** | One-click export and clipboard copy for **Full JSON**, **CSV Flat File**, and **PIM-ready JSON**. |
 
 ---

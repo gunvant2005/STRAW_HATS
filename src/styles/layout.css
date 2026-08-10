@@ -91,8 +91,9 @@
 .app-header__meta {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  flex-shrink: 0;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 /* ═══════════════════════════════════════════════════

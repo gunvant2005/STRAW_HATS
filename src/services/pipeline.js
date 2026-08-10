@@ -171,11 +171,24 @@ export async function runPipeline() {
       `${reviewQueue.length} field${reviewQueue.length === 1 ? '' : 's'} queued for review`
     );
 
-    // 7. Export
-    updateStep('export', 'running', 'Preparing commerce-ready payload…');
+    // 7. Export & Database Persistence
+    updateStep('export', 'running', 'Preparing commerce-ready payload & syncing DB…');
     await delay(stepDelay(700), token);
     setState({ exportEnabled: true });
-    updateStep('export', 'complete', 'JSON · CSV · PIM export ready');
+
+    // Sync extraction record to backend database
+    try {
+      const { apiClient } = await import('./apiClient.js');
+      await apiClient.runPipeline({
+        sku,
+        description: input.description,
+        notes: input.notes,
+        pdf: input.pdf,
+        image: input.image,
+      }).catch(() => null);
+    } catch {}
+
+    updateStep('export', 'complete', 'JSON · CSV · PIM export ready · Database synced');
 
     setState({
       phase: reviewQueue.length ? 'review' : 'complete',

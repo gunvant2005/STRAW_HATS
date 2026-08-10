@@ -1,5 +1,5 @@
 import { db } from '../db/database.js';
-import { runPipeline } from '../../src/services/pipeline.js';
+import { extractProductAttributes } from './extractionEngine.js';
 import { sanitizeInput } from '../../src/services/security.js';
 
 /**
@@ -15,12 +15,14 @@ export async function createOrUpdateProductRecord(inputData, userId = 'usr_syste
   // Check if product already exists in database
   const existing = db.query('products', (p) => p.sku === safeSku);
 
-  // Run pipeline extraction
-  const record = await runPipeline(
-    { sku: safeSku, description: safeDesc, notes: safeNotes },
-    () => {},
-    { skipAnimation: true }
-  );
+  // Run real extraction engine
+  const record = extractProductAttributes({
+    sku: safeSku,
+    description: safeDesc,
+    notes: safeNotes,
+    pdfName: inputData.pdf?.name,
+    imageName: inputData.image?.name,
+  });
 
   let productId;
   if (existing.length > 0) {
@@ -125,6 +127,14 @@ export function getProductRecordBySku(sku) {
     attributes: attrMap,
     createdAt: product.created_at,
   };
+}
+
+/**
+ * Retrieve all saved product records from the database
+ */
+export function getAllProducts() {
+  const products = db.query('products');
+  return products.map((p) => getProductRecordBySku(p.sku)).filter(Boolean);
 }
 
 /**

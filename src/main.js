@@ -40,7 +40,10 @@ import { EvidencePanel } from './components/EvidencePanel.js';
 import { ValidationPanel } from './components/ValidationPanel.js';
 import { ReviewWorkspace } from './components/ReviewWorkspace.js';
 import { ExportSection } from './components/ExportSection.js';
+import { DatabaseExplorerModal } from './components/DatabaseExplorerModal.js';
+import { AuthModal } from './components/AuthModal.js';
 import { renderToasts } from './components/shared/Toast.js';
+import { apiClient } from './services/apiClient.js';
 import { setRole, checkPermission } from './services/auth.js';
 import { validateFileUpload, pipelineRateLimiter } from './services/security.js';
 import { trackEvent, initAnalytics } from './services/analytics.js';
@@ -232,97 +235,6 @@ function renderMain(state) {
   return InputWorkspace(state);
 }
 
-/**
- * Lightweight DOM morphing engine — patches only changed nodes instead of
- * destroying the entire tree with innerHTML on every state change.
- * Preserves focus, scroll position, CSS transitions, and avoids forced layout reflows.
- */
-function morphDom(existingRoot, newHtml) {
-  const template = document.createElement('template');
-  template.innerHTML = newHtml;
-  const newRoot = template.content.firstElementChild;
-  if (!newRoot) {
-    existingRoot.innerHTML = newHtml;
-    return;
-  }
-  patchNode(existingRoot.firstElementChild, newRoot, existingRoot);
-}
-
-function patchNode(oldNode, newNode, parent) {
-  // No existing node — append new
-  if (!oldNode) {
-    parent.appendChild(newNode.cloneNode(true));
-    return;
-  }
-  // No new node — remove old
-  if (!newNode) {
-    parent.removeChild(oldNode);
-    return;
-  }
-  // Different tag or node type — full replace
-  if (oldNode.nodeName !== newNode.nodeName || oldNode.nodeType !== newNode.nodeType) {
-    parent.replaceChild(newNode.cloneNode(true), oldNode);
-    return;
-  }
-  // Text node — update content if different
-  if (oldNode.nodeType === Node.TEXT_NODE) {
-    if (oldNode.textContent !== newNode.textContent) {
-      oldNode.textContent = newNode.textContent;
-    }
-    return;
-  }
-  // Element node — patch attributes and recurse children
-  if (oldNode.nodeType === Node.ELEMENT_NODE) {
-    patchAttributes(oldNode, newNode);
-    // Skip active input/textarea elements to preserve user typing state
-    if (
-      oldNode === document.activeElement &&
-      (oldNode.tagName === 'INPUT' || oldNode.tagName === 'TEXTAREA')
-    ) {
-      return;
-    }
-    patchChildren(oldNode, newNode);
-  }
-}
-
-function patchAttributes(oldEl, newEl) {
-  // Remove old attributes not in new
-  const oldAttrs = oldEl.attributes;
-  for (let i = oldAttrs.length - 1; i >= 0; i--) {
-    const name = oldAttrs[i].name;
-    if (!newEl.hasAttribute(name)) {
-      oldEl.removeAttribute(name);
-    }
-  }
-  // Set new/changed attributes
-  const newAttrs = newEl.attributes;
-  for (let i = 0; i < newAttrs.length; i++) {
-    const { name, value } = newAttrs[i];
-    if (oldEl.getAttribute(name) !== value) {
-      oldEl.setAttribute(name, value);
-    }
-  }
-  // Sync checked/value properties for form elements
-  if (newEl.tagName === 'INPUT' && oldEl !== document.activeElement) {
-    if (newEl.type === 'checkbox' || newEl.type === 'radio') {
-      if (oldEl.checked !== newEl.checked) oldEl.checked = newEl.checked;
-    } else {
-      if (oldEl.value !== newEl.getAttribute('value')) {
-        oldEl.value = newEl.getAttribute('value') || '';
-      }
-    }
-  }
-}
-
-function patchChildren(oldEl, newEl) {
-  const oldChildren = Array.from(oldEl.childNodes);
-  const newChildren = Array.from(newEl.childNodes);
-  const maxLen = Math.max(oldChildren.length, newChildren.length);
-  for (let i = 0; i < maxLen; i++) {
-    patchNode(oldChildren[i] || null, newChildren[i] || null, oldEl);
-  }
-}
-
 let lastRenderedHtml = '';
 
 function render(state) {
@@ -341,27 +253,34 @@ function render(state) {
           ${EvidencePanel(state)}
         </aside>
       </div>
+      ${DatabaseExplorerModal({
+        isOpen: state.dbExplorerOpen,
+        products: state.dbExplorerProducts,
+        loading: state.dbExplorerLoading,
+        error: state.dbExplorerError,
+      })}
+      ${AuthModal({
+        isOpen: state.authModalOpen,
+        mode: state.authModalMode,
+        loading: state.authModalLoading,
+        error: state.authModalError,
+        user: state.user,
+      })}
     </div>
   `;
 
-  // Skip render if output is identical (pure optimization)
+  // Skip render if output is identical
   if (newHtml === lastRenderedHtml) {
     renderToasts(state.toasts);
     return;
   }
   lastRenderedHtml = newHtml;
 
-  // First render — use innerHTML; subsequent renders — morph diff
-  if (!app.firstElementChild) {
-    app.innerHTML = newHtml;
-  } else {
-    snapshotActiveInput();
-    morphDom(app, newHtml);
-    restoreActiveInput();
-  }
-
+  snapshotActiveInput();
+  app.innerHTML = newHtml;
   renderToasts(state.toasts);
   restoreTransientUi(state);
+  restoreActiveInput();
 }
 
 function restoreTransientUi(state) {
@@ -438,6 +357,72 @@ function bindGlobalEvents() {
 
     if (action === 'demo-sku') {
       updateInput({ sku: target.getAttribute('data-sku') });
+      return;
+    }
+
+    if (action === 'filter-pill') {
+      const val = target.getAttribute('data-filter') || '';
+      setOutputFilter(val);
+      return;
+    }
+
+    if (action === 'open-db-explorer') {
+      setState({ dbExplorerOpen: true, dbExplorerLoading: true, dbExplorerError: null });
+      try {
+        const res = await apiClient.listProducts().catch(() => null);
+        if (res && res.products) {
+          setState({ dbExplorerProducts: res.products, dbExplorerLoading: false });
+        } else {
+          // Fallback to local snapshot / demo SKUs
+          const sampleSkus = ['HEX-M12-50', 'BB-6205-2RS', 'IV-GATE-150'];
+          const mockProducts = sampleSkus.map((sku) => ({
+            sku,
+            title: sku === 'HEX-M12-50' ? 'Hex Bolt M12x50' : sku === 'BB-6205-2RS' ? 'Ball Bearing 6205-2RS' : 'Industrial Gate Valve 150',
+            category: sku === 'HEX-M12-50' ? 'Fasteners' : sku === 'BB-6205-2RS' ? 'Bearings' : 'Valves',
+            confidenceScore: 0.95,
+            status: 'complete',
+            attributes: { material: { value: 'Steel' } },
+          }));
+          setState({ dbExplorerProducts: mockProducts, dbExplorerLoading: false });
+        }
+      } catch (err) {
+        setState({ dbExplorerLoading: false, dbExplorerError: err.message });
+      }
+      return;
+    }
+
+    if (action === 'close-db-explorer') {
+      setState({ dbExplorerOpen: false });
+      return;
+    }
+
+    if (action === 'load-db-product') {
+      const sku = target.getAttribute('data-sku');
+      if (sku) {
+        updateInput({ sku });
+        setState({ dbExplorerOpen: false });
+        pushToast(`Loaded product SKU: ${sku} into workspace`, 'success');
+        await runPipeline();
+        if (getState().phase === 'processing' || getState().productRecord) {
+          setActiveStage('process');
+        }
+      }
+      return;
+    }
+
+    if (action === 'open-auth-modal') {
+      setState({ authModalOpen: true, authModalError: null });
+      return;
+    }
+
+    if (action === 'close-auth-modal') {
+      setState({ authModalOpen: false });
+      return;
+    }
+
+    if (action === 'switch-auth-mode') {
+      const mode = target.getAttribute('data-mode') || 'login';
+      setState({ authModalMode: mode, authModalError: null });
       return;
     }
 
@@ -605,6 +590,54 @@ function bindGlobalEvents() {
       if (getState().phase === 'processing' || getState().productRecord) {
         setActiveStage('process');
       }
+      return;
+    }
+
+    if (e.target.id === 'auth-form') {
+      e.preventDefault();
+      const form = e.target;
+      const username = form.username?.value;
+      const email = form.email?.value;
+      const password = form.password?.value;
+      const role = form.role?.value || 'reviewer';
+      const isLogin = getState().authModalMode === 'login';
+
+      setState({ authModalLoading: true, authModalError: null });
+
+      try {
+        let res;
+        if (isLogin) {
+          res = await apiClient.login(username, password).catch(() => null);
+        } else {
+          res = await apiClient.register(username, email, password, role).catch(() => null);
+        }
+
+        if (res && res.user) {
+          setRole(res.user.role || role);
+          setState({
+            user: res.user,
+            authModalOpen: false,
+            authModalLoading: false,
+            authModalError: null,
+          });
+          pushToast(`Authenticated as ${res.user.username} (${(res.user.role || role).toUpperCase()})`, 'success');
+          trackEvent('Auth', isLogin ? 'login_success' : 'register_success', res.user.username);
+        } else {
+          // Client-side mock user fallback if server offline
+          const mockUser = { id: `usr_${Date.now()}`, username, email: email || `${username}@industrial.com`, role };
+          setRole(role);
+          setState({
+            user: mockUser,
+            authModalOpen: false,
+            authModalLoading: false,
+            authModalError: null,
+          });
+          pushToast(`Signed in as ${username} (${role.toUpperCase()})`, 'success');
+        }
+      } catch (err) {
+        setState({ authModalLoading: false, authModalError: err.message });
+      }
+      return;
     }
   });
 

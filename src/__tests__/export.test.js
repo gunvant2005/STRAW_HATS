@@ -14,12 +14,11 @@ describe('Export Formatter Service', () => {
   };
 
   it('should build full JSON structure with metadata', () => {
-    const jsonStr = buildFullJson(sampleRecord);
-    const parsed = JSON.parse(jsonStr);
+    const json = buildFullJson(sampleRecord);
 
-    expect(parsed.sku).toBe('HEX-M12-50');
-    expect(parsed.attributes.material.value).toBe('316 Stainless Steel');
-    expect(parsed.metadata.exportedAt).toBeDefined();
+    expect(json.sku).toBe('HEX-M12-50');
+    expect(json.attributes.material.value).toBe('316 Stainless Steel');
+    expect(json.metadata.exportedAt).toBeDefined();
   });
 
   it('should build valid CSV string containing header and product row', () => {
@@ -30,9 +29,8 @@ describe('Export Formatter Service', () => {
 
   it('should build valid PIM-ready JSON format', () => {
     const pimJson = buildPimJson(sampleRecord);
-    const parsed = JSON.parse(pimJson);
 
-    expect(parsed.pim_record_id).toBe('HEX-M12-50');
-    expect(parsed.attributes.material).toBe('316 Stainless Steel');
+    expect(pimJson.pim_record_id).toBe('HEX-M12-50');
+    expect(pimJson.attributes.material).toBe('316 Stainless Steel');
   });
 });

@@ -71,6 +71,18 @@ function createInitialState() {
 
     outputFilter: '', // search string for product output
     undoStack: [], // history of review actions for undo
+
+    // Real-world Auth & DB Explorer state
+    user: null,
+    dbExplorerOpen: false,
+    dbExplorerProducts: [],
+    dbExplorerLoading: false,
+    dbExplorerError: null,
+
+    authModalOpen: false,
+    authModalMode: 'login', // login | register
+    authModalLoading: false,
+    authModalError: null,
   };
 }
 

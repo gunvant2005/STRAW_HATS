@@ -135,6 +135,20 @@ export function ProductOutput(state) {
     `
     : '';
 
+  const currentFilter = (state.outputFilter || '').trim().toLowerCase();
+
+  const filterPills = state.productRecord
+    ? `
+      <div class="filter-pills-bar" role="group" aria-label="Attribute Filter Quick Pills">
+        <button type="button" class="filter-pill ${currentFilter === '' ? 'is-active' : ''}" data-action="filter-pill" data-filter="">All Attributes (${totalFields})</button>
+        <button type="button" class="filter-pill ${currentFilter === 'reviewed' ? 'is-active' : ''}" data-action="filter-pill" data-filter="reviewed">✓ Reviewed</button>
+        <button type="button" class="filter-pill ${currentFilter === 'extracted' ? 'is-active' : ''}" data-action="filter-pill" data-filter="extracted">⚡ Extracted</button>
+        <button type="button" class="filter-pill ${currentFilter === 'inferred' ? 'is-active' : ''}" data-action="filter-pill" data-filter="inferred">💡 Inferred</button>
+        ${pendingCount > 0 ? `<button type="button" class="filter-pill ${currentFilter === 'pending' || currentFilter === 'review' ? 'is-active' : ''}" data-action="filter-pill" data-filter="pending">⚠️ Pending Review (${pendingCount})</button>` : ''}
+      </div>
+    `
+    : '';
+
   return `
     <section class="card" aria-labelledby="output-heading">
       <div class="card__header">
@@ -173,6 +187,7 @@ export function ProductOutput(state) {
       </div>
       <div class="card__body" style="padding:0">
         ${kpiBar}
+        ${filterPills}
         ${body}
       </div>
     </section>
