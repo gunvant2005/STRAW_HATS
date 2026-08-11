@@ -9,13 +9,16 @@ export function DatabaseExplorerModal({ isOpen, products = [], loading = false, 
   const closeIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
 
   const rows = products.map((p) => {
+    const sku = typeof p.sku === 'object' ? p.sku?.value : (p.sku || '');
+    const title = typeof p.title === 'object' ? p.title?.value : (p.title || 'Untitled Product');
+    const category = typeof p.category === 'object' ? p.category?.value : (p.category || 'Industrial Hardware');
     const attrCount = p.attributes ? Object.keys(p.attributes).length : 0;
     const confidencePct = Math.round((p.confidenceScore || 0.9) * 100);
     return `
       <tr>
-        <td class="field-value--mono"><strong>${escapeHtml(p.sku)}</strong></td>
-        <td>${escapeHtml(p.title || 'Untitled Product')}</td>
-        <td><span class="badge badge--neutral">${escapeHtml(p.category || 'Hardware')}</span></td>
+        <td class="field-value--mono"><strong>${escapeHtml(sku)}</strong></td>
+        <td>${escapeHtml(title)}</td>
+        <td><span class="badge badge--neutral">${escapeHtml(category)}</span></td>
         <td>${attrCount} attributes</td>
         <td>
           <div class="confidence-cell">
@@ -28,7 +31,7 @@ export function DatabaseExplorerModal({ isOpen, products = [], loading = false, 
             type="button"
             class="btn btn--primary btn--sm"
             data-action="load-db-product"
-            data-sku="${escapeHtml(p.sku)}"
+            data-sku="${escapeHtml(sku)}"
             title="Load product into active workspace"
           >
             ⚡ Load Product

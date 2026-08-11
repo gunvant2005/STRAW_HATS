@@ -30,6 +30,7 @@ import {
   buildCsv,
   buildPimJson,
 } from './services/export.js';
+import { PRODUCTS } from './data/products.js';
 
 import { Header } from './components/Header.js';
 import { StageRail } from './components/StageRail.js';
@@ -370,18 +371,17 @@ function bindGlobalEvents() {
       setState({ dbExplorerOpen: true, dbExplorerLoading: true, dbExplorerError: null });
       try {
         const res = await apiClient.listProducts().catch(() => null);
-        if (res && res.products) {
+        if (res && res.products && res.products.length > 0) {
           setState({ dbExplorerProducts: res.products, dbExplorerLoading: false });
         } else {
-          // Fallback to local snapshot / demo SKUs
-          const sampleSkus = ['HEX-M12-50', 'BB-6205-2RS', 'IV-GATE-150'];
-          const mockProducts = sampleSkus.map((sku) => ({
-            sku,
-            title: sku === 'HEX-M12-50' ? 'Hex Bolt M12x50' : sku === 'BB-6205-2RS' ? 'Ball Bearing 6205-2RS' : 'Industrial Gate Valve 150',
-            category: sku === 'HEX-M12-50' ? 'Fasteners' : sku === 'BB-6205-2RS' ? 'Bearings' : 'Valves',
+          // Fallback to local catalog items with complete attributes
+          const mockProducts = PRODUCTS.map((p) => ({
+            sku: p.fields.sku.value,
+            title: p.displayName,
+            category: p.fields.category.value,
             confidenceScore: 0.95,
             status: 'complete',
-            attributes: { material: { value: 'Steel' } },
+            attributes: p.fields,
           }));
           setState({ dbExplorerProducts: mockProducts, dbExplorerLoading: false });
         }

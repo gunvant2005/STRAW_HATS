@@ -130,9 +130,26 @@ export function getProductRecordBySku(sku) {
 }
 
 /**
+ * Seed initial demo products into the database if empty
+ */
+export function seedDefaultProducts() {
+  try {
+    const existing = db.query('products');
+    if (existing.length === 0) {
+      createOrUpdateProductRecord({ sku: 'HEX-M12-50' });
+      createOrUpdateProductRecord({ sku: 'BB-6205-2RS' });
+      createOrUpdateProductRecord({ sku: 'IV-GATE-150' });
+    }
+  } catch {
+    // Ignore seeding error if db is initializing
+  }
+}
+
+/**
  * Retrieve all saved product records from the database
  */
 export function getAllProducts() {
+  seedDefaultProducts();
   const products = db.query('products');
   return products.map((p) => getProductRecordBySku(p.sku)).filter(Boolean);
 }
