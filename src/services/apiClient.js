@@ -20,7 +20,7 @@ export function getAuthToken() {
   return authToken;
 }
 
-async function request(endpoint, options = {}) {
+async function request(endpoint, options = {}, retries = 1) {
   const baseUrl = config.apiBaseUrl.startsWith('http')
     ? config.apiBaseUrl
     : 'http://localhost:5000/api/v1';
@@ -50,6 +50,10 @@ async function request(endpoint, options = {}) {
     return await res.json();
   } catch (err) {
     clearTimeout(timeoutId);
+    if (retries > 0 && (options.method || 'GET').toUpperCase() === 'GET') {
+      await new Promise((r) => setTimeout(r, 500));
+      return request(endpoint, options, retries - 1);
+    }
     if (err.name === 'AbortError') {
       throw new Error('API Request timed out. Backend server may be offline.');
     }

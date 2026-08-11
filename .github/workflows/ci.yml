@@ -23,9 +23,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Execute Automated Test Suite
         run: npm run test
@@ -38,3 +39,4 @@ jobs:
         with:
           name: dist-build-node-${{ matrix.node-version }}
           path: dist/
+          if-no-files-found: error

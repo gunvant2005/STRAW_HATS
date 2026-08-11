@@ -188,7 +188,8 @@ export function exportJson() {
 
 export function exportCsv() {
   const csv = buildCsv();
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  // Include UTF-8 Byte Order Mark (\uFEFF) for Excel & Windows CSV compatibility
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
   downloadBlob(blob, `${skuSlug()}_product_intelligence.csv`);
 }
 

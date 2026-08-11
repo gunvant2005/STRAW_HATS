@@ -390,7 +390,14 @@ export function getFieldEntries(s = state) {
     .map((key) => ({ key, ...s.productRecord[key] }));
   const filter = (s.outputFilter || '').trim().toLowerCase();
   if (filter) {
+    // Special handling for 'pending' filter — cross-reference review queue
+    const pendingFields = new Set(
+      (s.reviewQueue || []).filter((q) => q.status === 'pending').map((q) => q.field)
+    );
     entries = entries.filter((e) => {
+      if (filter === 'pending') {
+        return pendingFields.has(e.key);
+      }
       const label = (FIELD_LABELS[e.key] || '').toLowerCase();
       const value = String(e.value || '').toLowerCase();
       const status = String(e.status || '').toLowerCase();

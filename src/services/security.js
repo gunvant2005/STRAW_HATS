@@ -7,11 +7,13 @@
 export function sanitizeInput(str) {
   if (typeof str !== 'string') return str;
   return str
+    .replace(/\0/g, '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;')
+    .replace(/`/g, '&#x60;')
     .replace(/\//g, '&#x2F;');
 }
 
@@ -83,12 +85,32 @@ class RateLimiter {
 
 export const pipelineRateLimiter = new RateLimiter(5, 10000);
 
-/** Sanitize input against SQL injection and command payload injection patterns */
+/** Sanitize input against SQL injection and command payload injection patterns (recursive pass prevents keyword bypasses) */
 export function sanitizeSqlInjection(str) {
   if (typeof str !== 'string') return str;
-  return str
-    .replace(/(\b(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|EXEC|UNION|CREATE|WHERE)\b)/gi, '')
-    .replace(/['";\-]/g, '');
+  let prev = str;
+  let cleaned = str;
+  const sqlRegex = /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|EXEC|UNION|CREATE|WHERE)\b)/gi;
+  do {
+    prev = cleaned;
+    cleaned = cleaned.replace(sqlRegex, '').replace(/['";\-]/g, '');
+  } while (cleaned !== prev);
+  return cleaned;
+}
+
+/** Recursively sanitize strings inside nested objects and arrays */
+export function sanitizeObject(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    return typeof obj === 'string' ? sanitizeInput(obj) : obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map((item) => sanitizeObject(item));
+  }
+  const sanitized = {};
+  for (const [key, value] of Object.entries(obj)) {
+    sanitized[key] = sanitizeObject(value);
+  }
+  return sanitized;
 }
 
 /** Password complexity check utility for user authentication security */

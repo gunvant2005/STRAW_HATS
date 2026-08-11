@@ -15,18 +15,26 @@ const CATEGORY_PATTERNS = [
   { category: 'Pneumatics', family: 'Pneumatic Actuators', regex: /\b(cylinder|pneumatic|air\s*filter|regulator|fitting|tubing)\b/i },
   { category: 'Electrical', family: 'Industrial Control', regex: /\b(terminal|switch|breaker|relay|contactor|sensor|plc|cable)\b/i },
   { category: 'Hydraulics', family: 'Hydraulic Components', regex: /\b(hydraulic|pump|manifold|hose|fluid|psi|bar)\b/i },
+  { category: 'Seals & Gaskets', family: 'O-Rings & Packings', regex: /\b(seal|gasket|o-ring|packing|v-ring|mechanical\s*seal)\b/i },
+  { category: 'Motors & Drives', family: 'Electric Motors', regex: /\b(motor|vfd|inverter|gearbox|drive|servo|stepper)\b/i },
+  { category: 'Piping & Fittings', family: 'Pipe Fittings', regex: /\b(pipe|flange|elbow|tee|coupling|adapter|reducer)\b/i },
 ];
 
 // Material detection patterns
 const MATERIAL_PATTERNS = [
   { value: '316 Stainless Steel', regex: /\b(stainless\s*steel\s*316|316ss|ss316|a4\s*stainless|a4-70|a4-80)\b/i },
   { value: '304 Stainless Steel', regex: /\b(stainless\s*steel\s*304|304ss|ss304|a2\s*stainless|a2-70)\b/i },
+  { value: 'Duplex Stainless Steel 2205', regex: /\b(duplex|2205|uns\s*s31803|1\.4462)\b/i },
+  { value: 'Titanium Grade 5 (Ti-6Al-4V)', regex: /\b(titanium|ti-6al-4v|grade\s*5|uns\s*r56400)\b/i },
+  { value: 'Inconel 625 / Hastelloy', regex: /\b(inconel|hastelloy|alloy\s*625|uns\s*n06625)\b/i },
   { value: 'Chrome Steel GCr15', regex: /\b(gcr15|chrome\s*steel|52100|100cr6)\b/i },
   { value: 'Carbon Steel Grade 8.8', regex: /\b(grade\s*8\.8|8\.8\s*steel|carbon\s*steel|high\s*tensile)\b/i },
   { value: 'Brass (CW614N)', regex: /\b(brass|cw614n|c36000)\b/i },
+  { value: 'Bronze (C93200)', regex: /\b(bronze|c93200|sae\s*660)\b/i },
   { value: 'Cast Carbon Steel WCB', regex: /\b(wcb|astm\s*a216|cast\s*steel|nodular\s*iron)\b/i },
   { value: 'Aluminum 6061-T6', regex: /\b(aluminum|aluminium|6061|6061-t6)\b/i },
   { value: 'Nitrile Rubber (NBR)', regex: /\b(nbr|nitrile|buna-n)\b/i },
+  { value: 'Viton (FKM Rubber)', regex: /\b(viton|fkm|fluorocarbon)\b/i },
   { value: 'PTFE (Teflon)', regex: /\b(ptfe|teflon)\b/i },
 ];
 
@@ -53,7 +61,7 @@ export function extractProductAttributes({ sku, description = '', notes = '', pd
 
   // First check preset match for exact catalog items
   const matchedPreset = matchProduct(safeSku);
-  const isPreset = matchedPreset.id !== 'unknown' && matchedPreset.id !== 'hex-m12-50';
+  const isPreset = matchedPreset.id !== 'generic-fastener';
 
   if (isPreset) {
     const cloned = cloneProduct(matchedPreset);

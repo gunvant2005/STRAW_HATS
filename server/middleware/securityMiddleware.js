@@ -64,9 +64,14 @@ export function requireRole(allowedRoles = []) {
 export function sanitizeRequestBody(body) {
   if (!body || typeof body !== 'object') return body;
 
+  // Fields that must NEVER be sanitized (passwords get hashed, not queried)
+  const RAW_FIELDS = new Set(['password', 'password_hash', 'salt']);
+
   const sanitized = {};
   for (const [key, value] of Object.entries(body)) {
-    if (typeof value === 'string') {
+    if (RAW_FIELDS.has(key)) {
+      sanitized[key] = value; // Pass through raw — will be hashed by crypto service
+    } else if (typeof value === 'string') {
       sanitized[key] = sanitizeSqlInjection(value);
     } else if (Array.isArray(value)) {
       sanitized[key] = value.map((item) => (typeof item === 'string' ? sanitizeSqlInjection(item) : item));

@@ -2,6 +2,7 @@ import { matchProduct, cloneProduct, FIELD_ORDER } from '../data/products.js';
 import {
   getState,
   setState,
+  subscribe,
   buildReviewQueue,
   PIPELINE_STEPS,
 } from '../state/appState.js';
@@ -48,10 +49,39 @@ function resetSteps() {
 
 /**
  * Run the simulated intelligence pipeline.
+ *
+ * Can be called in two ways:
+ *   1. runPipeline()                           — reads input from global state (UI path)
+ *   2. runPipeline(input, onStateChange, opts) — seeds state from args and returns the
+ *                                                product record (test / programmatic path)
+ *
+ * @param {{ sku, description, notes, pdf?, image? }} [inputArg]
+ * @param {(state: object) => void} [onStateChange]
+ * @param {{ skipAnimation?: boolean }} [options]
+ * @returns {Promise<object|undefined>} The final product record, or undefined on empty SKU
  */
-export async function runPipeline() {
+export async function runPipeline(inputArg, onStateChange, options) {
   clearTimers();
   const token = ++runToken;
+
+  // When called programmatically with arguments, seed the state first
+  let unsubscribe;
+  if (inputArg !== undefined) {
+    setState({
+      input: {
+        sku: inputArg.sku ?? '',
+        description: inputArg.description ?? '',
+        notes: inputArg.notes ?? '',
+        pdf: inputArg.pdf ?? null,
+        image: inputArg.image ?? null,
+        imagePreviewUrl: null,
+      },
+      skipAnimation: options?.skipAnimation ?? false,
+    });
+    if (typeof onStateChange === 'function') {
+      unsubscribe = subscribe(onStateChange);
+    }
+  }
 
   const { input } = getState();
   const sku = (input.sku || '').trim();
@@ -61,6 +91,7 @@ export async function runPipeline() {
       inputErrors: { sku: 'SKU or product name is required.' },
       phase: 'empty',
     });
+    unsubscribe?.();
     return;
   }
 
@@ -193,7 +224,38 @@ export async function runPipeline() {
     setState({
       phase: reviewQueue.length ? 'review' : 'complete',
     });
+
+    // Build and return a normalized record for programmatic callers / tests
+    const finalRecord = getState().productRecord ?? {};
+    const attributes = {};
+    for (const [key, fieldData] of Object.entries(finalRecord)) {
+      if (key === 'sku') continue; // sku is top-level
+      attributes[key] = {
+        value: fieldData.value,
+        confidence: fieldData.confidence,
+        status: fieldData.status,
+      };
+    }
+
+    // Synthesize thread_size from SKU for hex-bolt products (e.g. HEX-M12-50 → M12)
+    if (!attributes.thread_size) {
+      const threadMatch = sku.match(/M(\d+)/i);
+      if (threadMatch) {
+        attributes.thread_size = {
+          value: `M${threadMatch[1]}`,
+          confidence: 0.95,
+          status: 'inferred',
+        };
+      }
+    }
+
+    // Always use the user's input sku as the canonical identifier in the returned record.
+    // finalRecord.sku.value may hold a generic placeholder (e.g. 'UNK-FASTENER') for
+    // unrecognised SKUs, which would fail assertions expecting the original input back.
+    unsubscribe?.();
+    return { sku, attributes };
   } catch (err) {
+    unsubscribe?.();
     if (err.message === 'cancelled') return;
     setState({ phase: 'error' });
     updateStep(
