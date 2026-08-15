@@ -45,27 +45,33 @@ export function StageRail(state) {
   return `
     <nav class="stage-rail" aria-label="Workflow stages">
       <div class="stage-rail__label">Stages</div>
-      ${STAGES.map((stage, i) => {
-        const active = state.activeStage === stage.id;
-        const indicator = stageIndicator(stage.id, state);
-        const indicatorClass = indicator ? cssClass(`stage-btn__indicator--${indicator}`) : '';
-        return `
-          <button
-            type="button"
-            class="stage-btn ${active ? 'is-active' : ''}"
-            data-action="set-stage"
-            data-stage="${escapeHtml(stage.id)}"
-            aria-current="${active ? 'page' : 'false'}"
-          >
-            <span class="stage-btn__icon" aria-hidden="true">${i + 1}</span>
-            <span class="stage-btn__text">
-              <span class="stage-btn__label">${escapeHtml(stage.label)}</span>
-              <span class="stage-btn__status">${escapeHtml(stageStatusText(stage.id, state))}</span>
-            </span>
-            <span class="stage-btn__indicator ${indicatorClass}" aria-hidden="true"></span>
-          </button>
-        `;
-      }).join('')}
+      <div role="tablist" aria-orientation="vertical" style="display:flex;flex-direction:column;gap:var(--space-1)">
+        ${STAGES.map((stage, i) => {
+          const active = state.activeStage === stage.id;
+          const indicator = stageIndicator(stage.id, state);
+          const indicatorClass = indicator ? cssClass(`stage-btn__indicator--${indicator}`) : '';
+          return `
+            <button
+              type="button"
+              id="tab-${escapeHtml(stage.id)}"
+              role="tab"
+              class="stage-btn ${active ? 'is-active' : ''}"
+              data-action="set-stage"
+              data-stage="${escapeHtml(stage.id)}"
+              aria-selected="${active ? 'true' : 'false'}"
+              aria-controls="main-workspace"
+              tabindex="${active ? '0' : '-1'}"
+            >
+              <span class="stage-btn__icon" aria-hidden="true">${i + 1}</span>
+              <span class="stage-btn__text">
+                <span class="stage-btn__label">${escapeHtml(stage.label)}</span>
+                <span class="stage-btn__status">${escapeHtml(stageStatusText(stage.id, state))}</span>
+              </span>
+              <span class="stage-btn__indicator ${indicatorClass}" aria-hidden="true"></span>
+            </button>
+          `;
+        }).join('')}
+      </div>
     </nav>
   `;
 }

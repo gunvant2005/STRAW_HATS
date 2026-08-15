@@ -344,6 +344,13 @@ async function copyToClipboard(text) {
 
 function bindGlobalEvents() {
   document.addEventListener('click', async (e) => {
+    // Backdrop click on open modal closes modal
+    if (e.target.matches('.modal-backdrop')) {
+      if (getState().dbExplorerOpen) setState({ dbExplorerOpen: false });
+      if (getState().authModalOpen) setState({ authModalOpen: false });
+      return;
+    }
+
     const target = e.target.closest('[data-action]');
     if (!target) return;
 
@@ -728,6 +735,15 @@ function bindGlobalEvents() {
   });
 
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const s = getState();
+      if (s.dbExplorerOpen || s.authModalOpen) {
+        e.preventDefault();
+        setState({ dbExplorerOpen: false, authModalOpen: false });
+        return;
+      }
+    }
+
     const row = e.target.closest('tr[data-action="select-field"]');
     if (row && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();

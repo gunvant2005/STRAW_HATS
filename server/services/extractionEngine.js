@@ -238,6 +238,7 @@ export function extractProductAttributes({ sku, description = '', notes = '', pd
       field: 'material',
       severity: 'warning',
       message: 'Material inferred from category context — please verify exact alloy spec.',
+      suggestion: 'Review product data sheet or test certs to confirm exact alloy grade.',
     });
   }
   if (!detectedMaterial || detectedMaterial.includes('Inferred')) {
@@ -245,6 +246,7 @@ export function extractProductAttributes({ sku, description = '', notes = '', pd
       field: 'material',
       severity: 'info',
       message: 'Consider confirming material grade with technical spec sheet.',
+      suggestion: 'Upload supplier PDF spec sheet or edit material field directly.',
     });
   }
 

@@ -60,12 +60,19 @@ export function requireRole(allowedRoles = []) {
   };
 }
 
-/** Request Body Sanitization Filter */
+/**
+ * Request Body Sanitization Filter
+ * Recursively sanitizes strings inside nested objects and arrays to prevent SQL Injection & XSS.
+ */
 export function sanitizeRequestBody(body) {
   if (!body || typeof body !== 'object') return body;
 
   // Fields that must NEVER be sanitized (passwords get hashed, not queried)
   const RAW_FIELDS = new Set(['password', 'password_hash', 'salt']);
+
+  if (Array.isArray(body)) {
+    return body.map((item) => sanitizeRequestBody(item));
+  }
 
   const sanitized = {};
   for (const [key, value] of Object.entries(body)) {
@@ -74,10 +81,23 @@ export function sanitizeRequestBody(body) {
     } else if (typeof value === 'string') {
       sanitized[key] = sanitizeSqlInjection(value);
     } else if (Array.isArray(value)) {
-      sanitized[key] = value.map((item) => (typeof item === 'string' ? sanitizeSqlInjection(item) : item));
+      sanitized[key] = value.map((item) => (typeof item === 'string' ? sanitizeSqlInjection(item) : sanitizeRequestBody(item)));
+    } else if (value !== null && typeof value === 'object') {
+      sanitized[key] = sanitizeRequestBody(value);
     } else {
       sanitized[key] = value;
     }
   }
   return sanitized;
+}
+
+/** Validate payload size to prevent DOS/buffer overflow attacks */
+export function validatePayloadSize(body, maxBytes = 1048576) { // 1 MB default
+  if (!body) return true;
+  try {
+    const jsonStr = typeof body === 'string' ? body : JSON.stringify(body);
+    return Buffer.byteLength(jsonStr, 'utf-8') <= maxBytes;
+  } catch {
+    return true;
+  }
 }

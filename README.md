@@ -1,7 +1,8 @@
 <div align="center">
 
 # ⚡ Product Intelligence — Industrial Commerce Engine
-### *Enterprise AI-Powered Product Data Intelligence, Normalization & Security Engine*
+
+### _Enterprise AI-Powered Product Data Intelligence, Normalization & Security Engine_
 
 [![Vite](https://img.shields.io/badge/Frontend-Vite_8.2-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![JavaScript](https://img.shields.io/badge/Language-Vanilla_JS_ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
@@ -35,20 +36,20 @@
 
 ## 🌟 Key Platform Modules & Capabilities
 
-| Module Icon | Feature Name | Description & Capabilities |
-|:---:|---|---|
-| 📥 | **Input Workspace** | Multi-modal ingestion of SKU codes, supplier text copy, technical PDF data sheets, and product images with 1-click preset loaders. |
-| ⚙️ | **Industrial Extraction Engine** | Rule-based & regex technical attribute parser with confidence scoring ($0-100\%$) and automated citation linking. |
-| 🎛️ | **Interactive Filter Pills** | Instant 1-click attribute filtering by `All`, `Reviewed`, `Extracted`, `Inferred`, and `Pending Review`. |
-| 🗄️ | **Product Database Explorer** | Real-time modal inspection of products stored in the relational database with 1-click loading into the workspace. |
-| 🔐 | **PBKDF2 User Auth Modal** | Enterprise authentication modal issuing signed HMAC JWT session tokens with PBKDF2 password encryption. |
-| ⚡ | **7-Stage Pipeline Engine** | Asynchronous execution pipeline: `Ingestion` → `Parsing` → `Extraction` → `Enrichment` → `Validation` → `Human Review` → `Export`. |
-| 📊 | **Live KPI Analytics Bar** | Real-time workspace metrics calculation: Total Attributes, Avg Confidence Score, Validation Quality Grade, and Pending Review items. |
-| 🔍 | **Evidence Traceability** | Every extracted attribute links directly to source document citations, page numbers, and exact text snippets. |
-| 🛡️ | **Validation & Anomaly Engine** | Real-time confidence scoring ($0-100\%$), missing attribute detection, unit standardization, and taxonomy rules. |
-| 👥 | **Human-in-the-Loop Review** | Inline attribute editing, single-click approvals/rejections, reviewer notes, bulk operations, and multi-step undo (`Ctrl+Z`). |
-| 💾 | **Database Auto-Persistence** | File-backed database serialization (`server/db/data.json`) + `localStorage` client state auto-recovery on restart. |
-| 📦 | **Multi-Format Handoff** | One-click export and clipboard copy for **Full JSON**, **CSV Flat File**, and **PIM-ready JSON**. |
+| Module Icon | Feature Name                     | Description & Capabilities                                                                                                           |
+| :---------: | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+|     📥      | **Input Workspace**              | Multi-modal ingestion of SKU codes, supplier text copy, technical PDF data sheets, and product images with 1-click preset loaders.   |
+|     ⚙️      | **Industrial Extraction Engine** | Rule-based & regex technical attribute parser with confidence scoring ($0-100\%$) and automated citation linking.                    |
+|     🎛️      | **Interactive Filter Pills**     | Instant 1-click attribute filtering by `All`, `Reviewed`, `Extracted`, `Inferred`, and `Pending Review`.                             |
+|     🗄️      | **Product Database Explorer**    | Real-time modal inspection of products stored in the relational database with 1-click loading into the workspace.                    |
+|     🔐      | **PBKDF2 User Auth Modal**       | Enterprise authentication modal issuing signed HMAC JWT session tokens with PBKDF2 password encryption.                              |
+|     ⚡      | **7-Stage Pipeline Engine**      | Asynchronous execution pipeline: `Ingestion` → `Parsing` → `Extraction` → `Enrichment` → `Validation` → `Human Review` → `Export`.   |
+|     📊      | **Live KPI Analytics Bar**       | Real-time workspace metrics calculation: Total Attributes, Avg Confidence Score, Validation Quality Grade, and Pending Review items. |
+|     🔍      | **Evidence Traceability**        | Every extracted attribute links directly to source document citations, page numbers, and exact text snippets.                        |
+|     🛡️      | **Validation & Anomaly Engine**  | Real-time confidence scoring ($0-100\%$), missing attribute detection, unit standardization, and taxonomy rules.                     |
+|     👥      | **Human-in-the-Loop Review**     | Inline attribute editing, single-click approvals/rejections, reviewer notes, bulk operations, and multi-step undo (`Ctrl+Z`).        |
+|     💾      | **Database Auto-Persistence**    | File-backed database serialization (`server/db/data.json`) + `localStorage` client state auto-recovery on restart.                   |
+|     📦      | **Multi-Format Handoff**         | One-click export and clipboard copy for **Full JSON**, **CSV Flat File**, and **PIM-ready JSON**.                                    |
 
 ---
 
@@ -100,13 +101,13 @@ flowchart TB
 
 ## 🔌 REST API Specification Overview
 
-| Endpoint | Method | Security Guard | Description |
-|---|:---:|:---:|---|
-| `/api/v1/health` | `GET` | Public | System health check & version info |
-| `/api/v1/auth/register` | `POST` | Public | Register user account with PBKDF2 password encryption |
-| `/api/v1/auth/login` | `POST` | Public | Authenticate credentials and issue signed JWT token |
-| `/api/v1/pipeline/run` | `POST` | Rate Limiter | Execute extraction pipeline and persist record to database |
-| `/api/v1/products` | `GET` | JWT Bearer | Fetch product record, attributes, and evidence citations |
+| Endpoint                 | Method | Security Guard  | Description                                                       |
+| ------------------------ | :----: | :-------------: | ----------------------------------------------------------------- |
+| `/api/v1/health`         | `GET`  |     Public      | System health check & version info                                |
+| `/api/v1/auth/register`  | `POST` |     Public      | Register user account with PBKDF2 password encryption             |
+| `/api/v1/auth/login`     | `POST` |     Public      | Authenticate credentials and issue signed JWT token               |
+| `/api/v1/pipeline/run`   | `POST` |  Rate Limiter   | Execute extraction pipeline and persist record to database        |
+| `/api/v1/products`       | `GET`  |   JWT Bearer    | Fetch product record, attributes, and evidence citations          |
 | `/api/v1/reviews/action` | `POST` | RBAC Role Guard | Record human review action (Approve, Edit, Reject) with audit log |
 
 ---
@@ -114,7 +115,8 @@ flowchart TB
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
-- **Node.js** v18+ 
+
+- **Node.js** v18+
 - **npm** v9+
 
 ### Installation & Local Setup
@@ -154,6 +156,7 @@ npm run test
 ```
 
 ### 6 Test Coverage Modules:
+
 1. `src/__tests__/pipeline.test.js` — Pipeline engine & fallback SKU generator
 2. `src/__tests__/validation.test.js` — Validation rules & anomaly detection engine
 3. `src/__tests__/export.test.js` — Full JSON, CSV, and PIM format builders
@@ -165,12 +168,12 @@ npm run test
 
 ## ⌨️ UX Keyboard Shortcuts
 
-| Shortcut | Action |
-|:---:|---|
+|     Shortcut     | Action                                         |
+| :--------------: | ---------------------------------------------- |
 | `Ctrl` + `Enter` | Submit Input Form / Approve Active Review Item |
-| `Ctrl` + `S` | Quick Export Full Product JSON Record |
-| `Ctrl` + `Z` | Undo Last Review Queue Action |
-| `Esc` | Cancel Inline Attribute Editing |
+|   `Ctrl` + `S`   | Quick Export Full Product JSON Record          |
+|   `Ctrl` + `Z`   | Undo Last Review Queue Action                  |
+|      `Esc`       | Cancel Inline Attribute Editing                |
 
 ---
 
@@ -178,13 +181,13 @@ npm run test
 
 - 📘 [API Specification & Data Schemas](API_DOCUMENTATION.md)
 - 💾 [Disaster Recovery & Backup SOP](BACKUP_RECOVERY.md)
-- 📊 [13-Point Quality & Audit Report](C:\Users\dhake\.gemini\antigravity-ide\brain\04982c0f-3423-47a6-a8a3-fb7d3174db0e\audit_report.md)
+- 📊 [13-Point Quality & Audit Report](C:\Users\dhake.gemini\antigravity-ide\brain\04982c0f-3423-47a6-a8a3-fb7d3174db0e\audit_report.md)
 
 ---
 
 <div align="center">
 
 Made with ❤️ by **Team STRAW_HATS**  
-*Licensed under the [MIT License](LICENSE)*
+_Licensed under the [MIT License](LICENSE)_
 
 </div>

@@ -5,26 +5,29 @@
 
 const STORAGE_KEY = 'product_intelligence_workspace_v1';
 
+let saveTimer = null;
+
 export function saveStateSnapshot(state) {
-  try {
-    const snapshot = {
-      version: 1,
-      savedAt: new Date().toISOString(),
-      data: {
-        input: state.input,
-        activeStage: state.activeStage,
-        phase: state.phase,
-        productRecord: state.productRecord,
-        reviewQueue: state.reviewQueue,
-        history: state.history,
-        theme: state.theme,
-      },
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
-    return true;
-  } catch (err) {
-    return false;
-  }
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      const snapshot = {
+        version: 1,
+        savedAt: new Date().toISOString(),
+        data: {
+          input: state.input,
+          activeStage: state.activeStage,
+          phase: state.phase,
+          productRecord: state.productRecord,
+          reviewQueue: state.reviewQueue,
+          history: state.history,
+          theme: state.theme,
+        },
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+    } catch {}
+  }, 300);
+  return true;
 }
 
 export function loadStateSnapshot() {

@@ -32,7 +32,7 @@ async function request(endpoint, options = {}, retries = 1) {
   };
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), options.timeout || 8000);
+  const timeoutId = setTimeout(() => controller.abort(), options.timeout || 3500);
 
   try {
     const res = await fetch(`${baseUrl}${endpoint}`, {

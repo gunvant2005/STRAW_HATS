@@ -10,7 +10,6 @@
   text-align: center;
   padding: var(--space-10) var(--space-6);
   color: var(--text-muted);
-  animation: fadeSlideUp var(--duration-enter) var(--ease-out) both;
 }
 
 .empty-state__icon {
@@ -23,16 +22,16 @@
   place-items: center;
   margin-bottom: var(--space-4);
   color: var(--text-muted);
-  transition: transform 0.4s var(--ease-bounce),
-              border-color 0.3s ease,
-              box-shadow 0.4s ease,
-              background 0.3s ease;
+  transition: transform 0.25s var(--ease-out),
+              border-color 0.25s ease,
+              box-shadow 0.25s ease,
+              background 0.25s ease;
 }
 
 .empty-state:hover .empty-state__icon {
-  transform: translateY(-6px) rotate(-5deg) scale(1.05);
+  transform: translateY(-2px);
   border-color: var(--accent);
-  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.12);
   background: var(--accent-subtle);
 }
 
@@ -121,7 +120,10 @@
   border: 1px solid var(--border);
   font-size: var(--text-sm);
   margin-bottom: var(--space-4);
-  animation: bannerSlideDown var(--duration-slow) var(--ease-out) both;
+  transition: background 0.3s ease,
+              border-color 0.3s ease,
+              color 0.3s ease,
+              box-shadow 0.3s ease;
 }
 
 .phase-banner--success {

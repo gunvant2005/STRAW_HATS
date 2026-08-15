@@ -1,14 +1,16 @@
-# 📊 UniHack Presentation Deck Content — AI_VENGERS
+# 📊 UniHack Presentation Deck Content — STRAW_HATS
 
 ---
 
 ## 🎯 Slide 1: Guidelines
-*(Hackathon Instructions - Keep as provided in template)*
+
+_(Hackathon Instructions - Keep as provided in template)_
 
 ---
 
 ## 👥 Slide 2: Team Details
-- **Team Name**: `AI_VENGERS`
+
+- **Team Name**: `STRAW_HATS`
 - **Team Leader**: `GUNVANT SANJAY DHAKE`
 - **Project Title**: **AI-Powered Product Intelligence for Industrial Commerce**
 - **Domain**: Unilog Industrial Commerce & Product Information Management (PIM)
@@ -18,6 +20,7 @@
 ## 💡 Slide 3: Brief about your solution
 
 ### **Product Intelligence Platform**
+
 An enterprise-grade, automated product attribute extraction and enrichment engine built specifically for industrial B2B commerce catalog management.
 
 - **The Core Problem**: Industrial distributors handle millions of unstandardized supplier PDFs, raw part numbers, and fragmented spec sheets. Manual catalog ingestion takes hours per product, resulting in incomplete search indexing and missing attribute filters.
@@ -28,17 +31,20 @@ An enterprise-grade, automated product attribute extraction and enrichment engin
 ## 🧠 Slide 4: Key Solution Questions
 
 ### **1. How does your solution enrich minimal product information?**
+
 - **Catalog Pattern Matching**: Matches input SKUs against structured catalog standards (e.g. DIN 933, ISO 4017, ANSI, ABEC-3).
 - **Rule Engine & Heuristic Inference**: Automatically detects taxonomy (Category, Product Family), material grades (Stainless Steel 316, Titanium Gr 5, Inconel 625), dimensions (`M12 × 50 mm`), compliance tags (`RoHS`, `REACH`, `CE`), and surface finishes.
 - **Automated Accessories Mapping**: Generates cross-referenced related items (e.g., matching nuts & washers for hex bolts).
 
 ### **2. How does your solution ensure accuracy and trust in the generated product data?**
+
 - **Confidence Scoring**: Calculates a confidence percentage (`0.0 - 1.0`) for every extracted attribute.
 - **Evidence Tracing**: Links every attribute to its exact evidence source document, page number, section header, and textual snippet.
 - **Rule-Based Validation Engine**: Automatically flags missing critical fields, unit mismatches, and confidence levels below `0.70`.
 - **Human-in-the-Loop (HITL) Queue**: Queues low-confidence or inferred attributes for human auditor review with approval, edit, rejection, and undo stack history.
 
 ### **3. What makes your solution scalable for enterprise product catalogs?**
+
 - **Decoupled Architecture**: High-throughput processing pipeline separated from rendering, capable of processing hundreds of catalog uploads concurrently.
 - **Dynamic Pattern Recognition**: Easily expandable category and material regex rules without modifying core engine logic.
 - **Format Agnostic**: Accepts PDFs, raw text, supplier images, and part numbers seamlessly.
@@ -49,14 +55,17 @@ An enterprise-grade, automated product attribute extraction and enrichment engin
 ## 🚀 Slide 5: Opportunities
 
 ### **a. How different is it from existing ideas?**
+
 - Unlike generic LLM wrappers, our platform uses a **hybrid multi-layer approach**: Catalog Exact Match + Regex Rule Engine + Heuristic Context Inference + Evidence Lineage Tracing.
 - Provides full audit trail logging and source citations for strict industrial compliance.
 
 ### **b. How will it solve the problem statement?**
+
 - Reduces catalog onboarding time from **45 minutes per SKU down to <3 seconds**.
 - Eliminates manual data entry errors and ensures 100% attribute field completeness for e-commerce search filters.
 
 ### **c. Unique Selling Proposition (USP)**
+
 - **Audit-Traceable Attribute Lineage**: Every single extracted field shows the exact PDF source snippet and page number.
 - **Commerce-Ready Multi-Format Handoff**: One-click export to Full JSON, PIM-Ready JSON, and Excel-compatible CSV with UTF-8 BOM encoding.
 
@@ -65,11 +74,11 @@ An enterprise-grade, automated product attribute extraction and enrichment engin
 ## ⭐ Slide 6: List of Features Offered by the Solution
 
 1. **Multi-Source Input Workspace**: Accepts SKU codes, description copy, notes, technical PDFs, and images.
-2. **Interactive Progress Rail & Stage Stepper**: Visual real-time 4-stage stepper (*Input → Process → Review → Export*).
+2. **Interactive Progress Rail & Stage Stepper**: Visual real-time 4-stage stepper (_Input → Process → Review → Export_).
 3. **Evidence Panel & Lineage Inspector**: Side-by-side verification showing evidence snippets, page numbers, and source document filenames.
 4. **Validation & Quality Panel**: Real-time error, warning, and info count breakdown.
 5. **Human-in-the-Loop Review Queue**: Granular approve/edit/reject actions, bulk approvals, and 20-step undo action stack.
-6. **Saved Product Catalog & Database Explorer**: Live database viewer modal featuring search, status badges, attribute counts, and ⚡ *Load Product* workspace handoff.
+6. **Saved Product Catalog & Database Explorer**: Live database viewer modal featuring search, status badges, attribute counts, and ⚡ _Load Product_ workspace handoff.
 7. **Enterprise Security Suite**: XSS sanitization, multi-pass SQL injection immunity, rate limiting, and RBAC authentication.
 
 ---
@@ -156,7 +165,8 @@ An enterprise-grade, automated product attribute extraction and enrichment engin
 
 ## 📸 Slide 12: Snapshots of the MVP
 
-*(Refer to live deployed application running at Vite dev server / Vercel endpoint)*
+_(Refer to live deployed application running at Vite dev server / Vercel endpoint)_
+
 1. **Dashboard & Input Stage**: Clean, dark/light theme industrial interface with SKU input and PDF dropzone.
 2. **Attribute Extraction Output**: Comprehensive field key/value table with confidence percentages and evidence badges.
 3. **Database Explorer**: Saved products modal displaying live database inventory.
@@ -173,13 +183,14 @@ An enterprise-grade, automated product attribute extraction and enrichment engin
 
 ## 🔗 Slide 14: Links & Deliverables
 
-1. **GitHub Public Repository**: [https://github.com/gunvant2005/AI_VENGERS](https://github.com/gunvant2005/AI_VENGERS)
-2. **Demo Video Link (3 Minutes)**: *(Insert your video URL here)*
-3. **Working Prototype Link**: *(Insert your Vercel / Live Deployment URL here)*
+1. **GitHub Public Repository**: [https://github.com/STRAW_HATS/product-intelligence](https://github.com/STRAW_HATS/product-intelligence)
+2. **Demo Video Link (3 Minutes)**: _(Insert your video URL here)_
+3. **Working Prototype Link**: _(Insert your Vercel / Live Deployment URL here)_
 
 ---
 
 ## 🙏 Slide 15: Thank You
 
-**AI_VENGERS** — *Building the Future of Industrial Commerce Intelligence*
+**STRAW HATS** — _Building the Future of Industrial Commerce Intelligence_
+
 - **Team Leader**: Gunvant Sanjay Dhake

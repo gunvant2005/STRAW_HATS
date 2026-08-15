@@ -1,4 +1,5 @@
 import { matchProduct, cloneProduct, FIELD_ORDER } from '../data/products.js';
+import { apiClient } from './apiClient.js';
 import {
   getState,
   setState,
@@ -209,7 +210,6 @@ export async function runPipeline(inputArg, onStateChange, options) {
 
     // Sync extraction record to backend database
     try {
-      const { apiClient } = await import('./apiClient.js');
       await apiClient.runPipeline({
         sku,
         description: input.description,

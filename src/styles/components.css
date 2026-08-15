@@ -12,9 +12,9 @@
   font-size: var(--text-sm);
   font-weight: 500;
   border: 1px solid transparent;
-  transition: transform 0.2s var(--ease-bounce),
+  transition: transform 0.2s var(--ease-out),
               background-color 0.2s ease,
-              background 0.3s ease,
+              background 0.25s ease,
               border-color 0.2s ease,
               color 0.2s ease,
               box-shadow 0.25s ease;
@@ -54,7 +54,7 @@
 }
 
 .btn--primary:hover:not(:disabled) {
-  transform: translateY(-2px) scale(1.02);
+  transform: translateY(-1px);
   box-shadow: var(--shadow-glow);
 }
 
@@ -73,8 +73,8 @@
   background: var(--surface-hover);
   border-color: var(--accent);
   color: var(--accent);
-  transform: translateY(-1.5px) scale(1.01);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn--ghost {
@@ -95,7 +95,7 @@
 
 .btn--success:hover:not(:disabled) {
   background: #166534;
-  transform: translateY(-1.5px) scale(1.01);
+  transform: translateY(-1px);
   box-shadow: var(--shadow-glow-success);
 }
 
@@ -108,7 +108,7 @@
 .btn--danger:hover:not(:disabled) {
   background: var(--error-bg);
   border-color: var(--error);
-  transform: translateY(-1.5px) scale(1.01);
+  transform: translateY(-1px);
   box-shadow: var(--shadow-glow-error);
 }
 
@@ -416,7 +416,7 @@
   border-radius: 999px;
   color: var(--text-muted);
   cursor: pointer;
-  transition: transform 0.2s var(--ease-bounce),
+  transition: transform 0.2s var(--ease-out),
               border-color 0.2s ease,
               background-color 0.2s ease,
               color 0.2s ease,
@@ -428,12 +428,12 @@
   border-color: var(--accent);
   color: var(--accent);
   background: var(--accent-subtle);
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.18);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
 }
 
 .demo-chip:active:not(:disabled) {
-  transform: translateY(0) scale(0.96);
+  transform: translateY(0);
 }
 
 .demo-chip:disabled {
@@ -450,15 +450,14 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  transition: transform 0.3s var(--ease-out),
-              box-shadow 0.4s var(--ease-out),
-              border-color 0.3s var(--ease-out);
-  animation: fadeSlideUp var(--duration-enter) var(--ease-out) both;
+  transition: transform 0.25s var(--ease-out),
+              box-shadow 0.3s var(--ease-out),
+              border-color 0.25s var(--ease-out);
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
   border-color: var(--border-strong);
 }
 
@@ -891,28 +890,18 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface-card);
-  transition: border-color var(--duration-slow) var(--ease),
-              background var(--duration-slow) var(--ease),
-              box-shadow var(--duration-slow) var(--ease),
-              transform var(--duration) var(--ease);
+  transition: border-color 0.3s var(--ease-out),
+              background 0.3s var(--ease-out),
+              box-shadow 0.3s var(--ease-out),
+              transform 0.2s var(--ease-out);
   position: relative;
   z-index: 1;
-  animation: fadeSlideUp var(--duration-enter) var(--ease-out) both;
 }
-
-.pipeline-step:nth-child(1) { animation-delay: 0ms; }
-.pipeline-step:nth-child(2) { animation-delay: 50ms; }
-.pipeline-step:nth-child(3) { animation-delay: 100ms; }
-.pipeline-step:nth-child(4) { animation-delay: 150ms; }
-.pipeline-step:nth-child(5) { animation-delay: 200ms; }
-.pipeline-step:nth-child(6) { animation-delay: 250ms; }
-.pipeline-step:nth-child(7) { animation-delay: 300ms; }
 
 .pipeline-step.is-running {
   border-color: var(--accent);
   background: var(--accent-subtle);
-  box-shadow: 0 0 0 1px var(--accent-alpha), var(--shadow-md);
-  animation: breatheGlow 2s ease-in-out infinite, fadeSlideUp var(--duration-enter) var(--ease-out) both;
+  box-shadow: 0 0 0 1px var(--accent-alpha), var(--shadow-sm);
 }
 
 .pipeline-step.is-complete {
@@ -1005,16 +994,14 @@
 .product-table tbody tr {
   cursor: pointer;
   border-left: 3px solid transparent;
-  transition: background-color 0.2s var(--ease),
-              border-color 0.2s var(--ease),
-              transform 0.15s var(--ease-out),
-              box-shadow 0.2s var(--ease);
+  transition: background-color 0.2s var(--ease-out),
+              border-color 0.2s var(--ease-out),
+              box-shadow 0.2s var(--ease-out);
 }
 
 .product-table tbody tr:hover {
   background-color: var(--surface-hover);
   border-left-color: var(--accent);
-  transform: translateX(2px);
 }
 
 .product-table tbody tr.is-selected {
@@ -1098,7 +1085,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  animation: fadeSlideUp var(--duration-enter) var(--ease-out) both;
+  transition: opacity 0.25s var(--ease-out);
 }
 
 .evidence-meta {
@@ -1152,14 +1139,15 @@
   background: var(--surface-card);
   cursor: pointer;
   text-align: left;
-  transition: border-color var(--duration) var(--ease),
-              transform var(--duration) var(--ease-bounce),
-              box-shadow var(--duration) var(--ease);
+  transition: border-color 0.2s var(--ease-out),
+              transform 0.2s var(--ease-out),
+              box-shadow 0.2s var(--ease-out);
 }
 
 .issue-item:hover {
   border-color: var(--border-strong);
   transform: translateX(2px);
+  box-shadow: var(--shadow-sm);
 }
 
 .issue-item--error {
@@ -1222,10 +1210,9 @@
   background: var(--surface-card);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: opacity var(--duration-slow) var(--ease),
-              transform var(--duration) var(--ease-bounce),
-              box-shadow var(--duration-slow) var(--ease);
-  animation: fadeSlideUp var(--duration-enter) var(--ease-out) both;
+  transition: opacity 0.25s var(--ease-out),
+              transform 0.2s var(--ease-out),
+              box-shadow 0.25s var(--ease-out);
 }
 
 .review-card:hover {
@@ -1320,28 +1307,24 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  transition: transform var(--duration) var(--ease-bounce),
-              box-shadow var(--duration-slow) var(--ease),
-              border-color var(--duration) var(--ease);
-  animation: fadeSlideUp var(--duration-enter) var(--ease-out) both;
+  transition: transform 0.25s var(--ease-out),
+              box-shadow 0.3s var(--ease-out),
+              border-color 0.25s var(--ease-out);
 }
 
 .export-card:nth-child(1) {
   border-top: 3px solid var(--accent);
-  animation-delay: 0ms;
 }
 .export-card:nth-child(2) {
   border-top: 3px solid var(--success);
-  animation-delay: 80ms;
 }
 .export-card:nth-child(3) {
   border-top: 3px solid var(--review);
-  animation-delay: 160ms;
 }
 
 .export-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .export-card h3 {
@@ -1767,7 +1750,7 @@ select option:checked {
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
-  animation: fadeIn 0.2s var(--ease-out);
+  transition: opacity 0.2s var(--ease-out);
 }
 
 .modal-card {
@@ -1781,7 +1764,7 @@ select option:checked {
   flex-direction: column;
   max-height: 90vh;
   overflow: hidden;
-  animation: fadeSlideUp 0.25s var(--ease-bounce);
+  transition: transform 0.2s var(--ease-out), opacity 0.2s var(--ease-out);
 }
 
 .modal-header {

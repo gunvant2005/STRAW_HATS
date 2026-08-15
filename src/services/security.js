@@ -90,7 +90,7 @@ export function sanitizeSqlInjection(str) {
   if (typeof str !== 'string') return str;
   let prev = str;
   let cleaned = str;
-  const sqlRegex = /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|EXEC|UNION|CREATE|WHERE)\b)/gi;
+  const sqlRegex = /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|EXEC|UNION|CREATE|WHERE|TABLE|FROM|INTO|VALUES|TRUNCATE)\b)/gi;
   do {
     prev = cleaned;
     cleaned = cleaned.replace(sqlRegex, '').replace(/['";\-]/g, '');

@@ -114,7 +114,7 @@ export function ProductOutput(state) {
 
   const kpiBar = state.productRecord
     ? `
-      <div class="kpi-summary-bar">
+      <div class="kpi-summary-bar" role="region" aria-label="Product Quality & Extraction Performance Summary">
         <div class="kpi-card">
           <span class="kpi-card__label">Total Attributes</span>
           <span class="kpi-card__val">${entries.length} / ${totalFields}</span>

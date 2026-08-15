@@ -1,6 +1,6 @@
 import { registerUser, loginUser, authenticateToken } from '../services/authService.js';
 import { createOrUpdateProductRecord, getProductRecordBySku, recordReviewAction, getAllProducts } from '../services/productService.js';
-import { setSecurityHeaders, applyRateLimit, sanitizeRequestBody } from '../middleware/securityMiddleware.js';
+import { setSecurityHeaders, applyRateLimit, sanitizeRequestBody, validatePayloadSize } from '../middleware/securityMiddleware.js';
 
 /**
  * Server Router & Request Handler
@@ -27,6 +27,12 @@ export async function handleApiRequest(req, res, bodyData) {
   // Pre-flight CORS request
   if (method === 'OPTIONS') {
     sendJson(200, { status: 'ok' });
+    return;
+  }
+
+  // Validate payload size
+  if (!validatePayloadSize(bodyData)) {
+    sendJson(413, { error: 'Payload Too Large. Maximum request payload is 1 MB.' });
     return;
   }
 
