@@ -532,14 +532,39 @@ function bindGlobalEvents() {
       const username = target.getAttribute('data-username') || '';
       const password = target.getAttribute('data-password') || '';
       const role = target.getAttribute('data-role') || 'reviewer';
-      const uInput = document.getElementById('auth-username');
-      const pInput = document.getElementById('auth-password');
-      if (uInput) uInput.value = username;
-      if (pInput) {
-        pInput.value = password;
-        pInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+      setState({ authModalLoading: true, authModalError: null });
+
+      try {
+        const authResult = await authenticateUser({ usernameOrEmail: username, password });
+        const userData = authResult.user;
+
+        authFormDraft = {
+          fullName: '',
+          username: '',
+          email: '',
+          org: '',
+          role: 'reviewer',
+          password: '',
+          confirmPassword: '',
+          loginUsername: '',
+          loginPassword: '',
+        };
+
+        setAuthUser(userData);
+        setRole(userData.role || role);
+        setState({
+          user: userData,
+          authModalOpen: false,
+          authModalLoading: false,
+          authModalError: null,
+        });
+        releaseFocusTrap();
+        pushToast(`⚡ 1-Click Login: Signed in as ${userData.fullName || userData.username} (${(userData.role || role).toUpperCase()})`, 'success');
+        trackEvent('Auth', 'demo_1click_login', userData.username);
+      } catch (err) {
+        setState({ authModalLoading: false, authModalError: err.message || '1-Click Login failed.' });
       }
-      pushToast(`Auto-filled credentials for ${username} (${role.toUpperCase()})`, 'info');
       return;
     }
 

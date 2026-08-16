@@ -152,7 +152,7 @@ function renderLoginForm(loading, draft = {}) {
     <div class="auth-presets-panel">
       <div class="auth-presets-panel__header">
         <span class="auth-presets-panel__label">⚡ Quick 1-Click Demo Accounts:</span>
-        <span class="auth-presets-panel__hint">Click any card to auto-fill credentials</span>
+        <span class="auth-presets-panel__hint">Click any card for instant 1-click sign in</span>
       </div>
       <div class="auth-presets-grid">
         ${DEMO_ACCOUNTS.map(
@@ -164,7 +164,7 @@ function renderLoginForm(loading, draft = {}) {
             data-username="${escapeHtml(acc.username)}"
             data-password="${escapeHtml(acc.password)}"
             data-role="${escapeHtml(acc.role)}"
-            title="Auto-fill as ${escapeHtml(acc.fullName)} (${acc.role.toUpperCase()})"
+            title="Instant 1-Click Sign In as ${escapeHtml(acc.fullName)} (${acc.role.toUpperCase()})"
           >
             <div class="auth-preset-card__avatar">${acc.avatar}</div>
             <div class="auth-preset-card__info">
