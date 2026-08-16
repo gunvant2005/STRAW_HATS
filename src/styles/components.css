@@ -1869,8 +1869,13 @@ select option:checked {
 }
 
 /* ── Modal Card ── */
+/* ── Modal Card ── */
 .auth-modal-card {
   max-width: 580px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
   background: var(--surface-card);
   border: 1px solid rgba(99, 102, 241, 0.15);
   border-radius: 18px;
@@ -1911,6 +1916,7 @@ select option:checked {
   justify-content: space-between;
   gap: var(--space-4);
   position: relative;
+  flex-shrink: 0;
 }
 
 .auth-header__brand {
@@ -1997,6 +2003,7 @@ select option:checked {
   padding: 6px var(--space-6);
   gap: 4px;
   position: relative;
+  flex-shrink: 0;
 }
 
 .auth-nav__item {
@@ -2055,11 +2062,13 @@ select option:checked {
 /* ── Body ── */
 .auth-modal-body {
   padding: var(--space-5) var(--space-6);
-  max-height: calc(85vh - 180px);
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border-strong) transparent;
 }
+
 
 .auth-modal-body::-webkit-scrollbar {
   width: 5px;
@@ -2353,32 +2362,45 @@ select option:checked {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .auth-input-icon {
   position: absolute;
-  left: 12px;
-  font-size: 14px;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px;
   color: var(--text-muted);
   pointer-events: none;
   transition: all 0.25s var(--ease);
-  z-index: 1;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .auth-input-wrapper:focus-within .auth-input-icon {
   color: var(--accent);
-  transform: scale(1.1);
+  transform: translateY(-50%) scale(1.1);
 }
 
+.auth-input-wrapper .auth-input,
+.field .auth-input-wrapper .auth-input,
 .auth-input {
   width: 100%;
-  padding: 11px 38px 11px 38px;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+  padding-left: 44px !important;
+  padding-right: 42px !important;
   background: var(--surface-page);
   border: 1.5px solid var(--border);
   border-radius: var(--radius-md);
   color: var(--text-primary);
   font-size: var(--text-sm);
   font-family: inherit;
+  box-sizing: border-box;
   transition:
     border-color 0.25s var(--ease),
     box-shadow 0.25s var(--ease),
@@ -2406,11 +2428,13 @@ select option:checked {
 
 .auth-pwd-toggle {
   position: absolute;
-  right: 8px;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   cursor: pointer;
-  padding: 5px;
+  padding: 6px;
   font-size: 14px;
   color: var(--text-muted);
   border-radius: var(--radius-sm);
@@ -2418,12 +2442,13 @@ select option:checked {
   align-items: center;
   justify-content: center;
   transition: all 0.2s var(--ease);
+  z-index: 2;
 }
 
 .auth-pwd-toggle:hover {
   color: var(--accent);
-  background: rgba(99, 102, 241, 0.08);
-  transform: scale(1.1);
+  background: rgba(99, 102, 241, 0.12);
+  transform: translateY(-50%) scale(1.1);
 }
 
 /* ── Password Strength Meter ── */
