@@ -113,24 +113,62 @@ export function sanitizeObject(obj) {
   return sanitized;
 }
 
+/** Detailed password security scoring and checklist evaluation for live feedback */
+export function evaluatePasswordSecurity(password) {
+  const p = typeof password === 'string' ? password : '';
+  const checks = {
+    length: p.length >= 8,
+    upper: /[A-Z]/.test(p),
+    lower: /[a-z]/.test(p),
+    digit: /\d/.test(p),
+    special: /[!@#$%^&*(),.?":{}|<>]/.test(p),
+  };
+
+  const passedCount = Object.values(checks).filter(Boolean).length;
+  let score = 0;
+  let label = 'Very Weak';
+  let color = 'var(--error)';
+
+  if (p.length === 0) {
+    score = 0;
+    label = 'None';
+    color = 'var(--text-muted)';
+  } else if (passedCount <= 2) {
+    score = 1;
+    label = 'Weak';
+    color = 'var(--error)';
+  } else if (passedCount === 3 || passedCount === 4) {
+    score = 2;
+    label = 'Moderate';
+    color = 'var(--warning)';
+  } else if (passedCount === 5 && p.length < 12) {
+    score = 3;
+    label = 'Strong';
+    color = 'var(--accent)';
+  } else if (passedCount === 5 && p.length >= 12) {
+    score = 4;
+    label = 'Maximum Security';
+    color = 'var(--success)';
+  }
+
+  return {
+    valid: checks.length && checks.upper && checks.lower && checks.digit && checks.special,
+    score,
+    label,
+    color,
+    checks,
+    message: passedCount === 5 ? 'Strong enterprise password' : 'Password must satisfy all security requirements',
+  };
+}
+
 /** Password complexity check utility for user authentication security */
 export function validatePasswordStrength(password) {
   if (!password || typeof password !== 'string') {
     return { valid: false, message: 'Password is required' };
   }
-  if (password.length < 8) {
-    return { valid: false, message: 'Password must be at least 8 characters long' };
-  }
-  const hasUpper = /[A-Z]/.test(password);
-  const hasLower = /[a-z]/.test(password);
-  const hasDigit = /\d/.test(password);
-  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-  if (!hasUpper || !hasLower || !hasDigit || !hasSpecial) {
-    return {
-      valid: false,
-      message: 'Password must contain uppercase, lowercase, number, and special character',
-    };
+  const evalResult = evaluatePasswordSecurity(password);
+  if (!evalResult.valid) {
+    return { valid: false, message: 'Password must contain at least 8 characters, uppercase, lowercase, number, and special character' };
   }
   return { valid: true, message: 'Strong password' };
 }

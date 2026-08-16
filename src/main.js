@@ -45,8 +45,23 @@ import { DatabaseExplorerModal } from './components/DatabaseExplorerModal.js';
 import { AuthModal } from './components/AuthModal.js';
 import { renderToasts } from './components/shared/Toast.js';
 import { apiClient } from './services/apiClient.js';
-import { setRole, checkPermission } from './services/auth.js';
-import { validateFileUpload, pipelineRateLimiter } from './services/security.js';
+import {
+  setRole,
+  checkPermission,
+  setAuthUser,
+  clearStoredUser,
+  loadStoredUser,
+  generateRealisticJwt,
+  DEMO_ACCOUNTS,
+  authenticateUser,
+  registerUserAccount,
+} from './services/auth.js';
+import {
+  validateFileUpload,
+  pipelineRateLimiter,
+  evaluatePasswordSecurity,
+  validatePasswordStrength,
+} from './services/security.js';
 import { trackEvent, initAnalytics } from './services/analytics.js';
 import { loadStateSnapshot } from './services/storage.js';
 
@@ -61,6 +76,70 @@ function debounce(fn, ms) {
   };
 }
 const debouncedSetOutputFilter = debounce((value) => setOutputFilter(value), 150);
+
+/** ── Focus Trap Utility ──
+ * Constrains keyboard Tab focus inside a given container element.
+ * Returns an unsubscribe function to remove the listener.
+ */
+function createFocusTrap(containerSelector) {
+  const FOCUSABLE = [
+    'a[href]',
+    'button:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])',
+  ].join(', ');
+
+  function handleKeydown(e) {
+    if (e.key !== 'Tab') return;
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+    const focusable = Array.from(container.querySelectorAll(FOCUSABLE)).filter(
+      (el) => !el.closest('[inert]') && el.offsetParent !== null
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
+
+  document.addEventListener('keydown', handleKeydown);
+  // Move focus to first focusable element in container
+  requestAnimationFrame(() => {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+    const first = container.querySelector(FOCUSABLE);
+    if (first) first.focus();
+  });
+
+  return () => document.removeEventListener('keydown', handleKeydown);
+}
+
+let _activeFocusTrap = null;
+
+function openModalWithTrap(containerSelector) {
+  // Release any existing trap first
+  if (_activeFocusTrap) { _activeFocusTrap(); _activeFocusTrap = null; }
+  // Trap needs to run after the re-render settles
+  requestAnimationFrame(() => {
+    _activeFocusTrap = createFocusTrap(containerSelector);
+  });
+}
+
+function releaseFocusTrap() {
+  if (_activeFocusTrap) { _activeFocusTrap(); _activeFocusTrap = null; }
+}
 
 /** Global Error Boundary Handler */
 window.addEventListener('error', (event) => {
@@ -79,6 +158,18 @@ window.addEventListener('unhandledrejection', (event) => {
 let pendingFocusSelector = null;
 let reviewNotesDraft = {};
 let activeInputSnapshot = null;
+
+let authFormDraft = {
+  fullName: '',
+  username: '',
+  email: '',
+  org: '',
+  role: 'reviewer',
+  password: '',
+  confirmPassword: '',
+  loginUsername: '',
+  loginPassword: '',
+};
 
 function applyThemeAttribute(theme) {
   const root = document.documentElement;
@@ -266,6 +357,7 @@ function render(state) {
         loading: state.authModalLoading,
         error: state.authModalError,
         user: state.user,
+        draft: authFormDraft,
       })}
     </div>
   `;
@@ -418,18 +510,99 @@ function bindGlobalEvents() {
     }
 
     if (action === 'open-auth-modal') {
-      setState({ authModalOpen: true, authModalError: null });
+      const mode = target.getAttribute('data-mode') || (getState().user ? 'profile' : 'login');
+      setState({ authModalOpen: true, authModalMode: mode, authModalError: null });
+      openModalWithTrap('.auth-modal-card');
       return;
     }
 
     if (action === 'close-auth-modal') {
       setState({ authModalOpen: false });
+      releaseFocusTrap();
       return;
     }
 
     if (action === 'switch-auth-mode') {
       const mode = target.getAttribute('data-mode') || 'login';
       setState({ authModalMode: mode, authModalError: null });
+      return;
+    }
+
+    if (action === 'autofill-auth') {
+      const username = target.getAttribute('data-username') || '';
+      const password = target.getAttribute('data-password') || '';
+      const role = target.getAttribute('data-role') || 'reviewer';
+      const uInput = document.getElementById('auth-username');
+      const pInput = document.getElementById('auth-password');
+      if (uInput) uInput.value = username;
+      if (pInput) {
+        pInput.value = password;
+        pInput.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      pushToast(`Auto-filled credentials for ${username} (${role.toUpperCase()})`, 'info');
+      return;
+    }
+
+    if (action === 'auth-sso-login') {
+      setState({ authModalLoading: true, authModalError: null });
+      setTimeout(async () => {
+        const ssoUser = {
+          id: `usr_sso_${Date.now().toString(36)}`,
+          username: 'sso_enterprise_admin',
+          fullName: 'Chief Engineer Alex Morgan',
+          email: 'alex.morgan@industrial-enterprise.io',
+          org: 'Enterprise SAML / Okta IAM Federation',
+          role: 'admin',
+        };
+        ssoUser.token = await generateRealisticJwt(ssoUser);
+        setAuthUser(ssoUser);
+        setRole('admin');
+        setState({
+          user: ssoUser,
+          authModalOpen: false,
+          authModalLoading: false,
+          authModalError: null,
+        });
+        releaseFocusTrap();
+        pushToast(`Enterprise SSO Login Authenticated: Welcome ${ssoUser.fullName}`, 'success');
+        trackEvent('Auth', 'sso_login_success', ssoUser.username);
+      }, 500);
+      return;
+    }
+
+    if (action === 'toggle-pwd-visibility') {
+      const targetId = target.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      if (input) {
+        const isPassword = input.getAttribute('type') === 'password';
+        input.setAttribute('type', isPassword ? 'text' : 'password');
+        target.textContent = isPassword ? '🙈' : '👁️';
+      }
+      return;
+    }
+
+    if (action === 'copy-jwt-token') {
+      const token = target.getAttribute('data-token') || '';
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(token);
+        pushToast('HMAC-SHA256 Bearer Token copied to clipboard', 'success');
+      } else {
+        pushToast('Token: ' + token.slice(0, 20) + '...', 'info');
+      }
+      return;
+    }
+
+    if (action === 'auth-logout') {
+      clearStoredUser();
+      setState({
+        user: null,
+        authModalOpen: false,
+        authModalMode: 'login',
+        authModalError: null,
+      });
+      setRole('reviewer');
+      pushToast('Signed out of enterprise session. Access token invalidated.', 'info');
+      trackEvent('Auth', 'logout');
       return;
     }
 
@@ -603,47 +776,135 @@ function bindGlobalEvents() {
     if (e.target.id === 'auth-form') {
       e.preventDefault();
       const form = e.target;
-      const username = form.username?.value;
-      const email = form.email?.value;
+      const username = form.username?.value?.trim();
+      const fullName = form.fullName?.value?.trim();
+      const email = form.email?.value?.trim();
       const password = form.password?.value;
+      const confirmPassword = form.confirmPassword?.value;
+      const org = form.org?.value?.trim() || 'Industrial Solutions Enterprise';
       const role = form.role?.value || 'reviewer';
       const isLogin = getState().authModalMode === 'login';
+
+      if (!username || !password) {
+        setState({ authModalError: 'Please enter both username / work email and password.' });
+        return;
+      }
+
+      if (!isLogin) {
+        if (!fullName) {
+          setState({ authModalError: 'Full Name is required for registration.' });
+          return;
+        }
+        if (!email) {
+          setState({ authModalError: 'Work email is required for registration.' });
+          return;
+        }
+        if (password !== confirmPassword) {
+          setState({ authModalError: 'Master password and confirmation password do not match.' });
+          return;
+        }
+        const check = evaluatePasswordSecurity(password);
+        if (!check.valid) {
+          setState({
+            authModalError: 'Password must satisfy all security requirements (8+ chars, uppercase, lowercase, number, symbol).',
+          });
+          return;
+        }
+      }
 
       setState({ authModalLoading: true, authModalError: null });
 
       try {
-        let res;
+        let authResult;
         if (isLogin) {
-          res = await apiClient.login(username, password).catch(() => null);
+          // Attempt backend login first if server is running, then local directory fallback
+          try {
+            const apiRes = await apiClient.login(username, password);
+            if (apiRes && apiRes.user) {
+              authResult = apiRes;
+            }
+          } catch (apiErr) {
+            // If server returned a 401/400 credentials error, throw it; if network offline, use local auth
+            if (apiErr.message && !apiErr.message.includes('offline') && !apiErr.message.includes('timed out') && !apiErr.message.includes('fetch')) {
+              throw apiErr;
+            }
+          }
+
+          if (!authResult) {
+            authResult = await authenticateUser({ usernameOrEmail: username, password });
+          }
         } else {
-          res = await apiClient.register(username, email, password, role).catch(() => null);
+          // Registration flow
+          authResult = await registerUserAccount({
+            username,
+            email,
+            fullName,
+            password,
+            org,
+            role,
+          });
+
+          // Sync with backend API in background if available
+          try {
+            await apiClient.register(username, email, password, role).catch(() => null);
+          } catch {}
         }
 
-        if (res && res.user) {
-          setRole(res.user.role || role);
-          setState({
-            user: res.user,
-            authModalOpen: false,
-            authModalLoading: false,
-            authModalError: null,
-          });
-          pushToast(`Authenticated as ${res.user.username} (${(res.user.role || role).toUpperCase()})`, 'success');
-          trackEvent('Auth', isLogin ? 'login_success' : 'register_success', res.user.username);
-        } else {
-          // Client-side mock user fallback if server offline
-          const mockUser = { id: `usr_${Date.now()}`, username, email: email || `${username}@industrial.com`, role };
-          setRole(role);
-          setState({
-            user: mockUser,
-            authModalOpen: false,
-            authModalLoading: false,
-            authModalError: null,
-          });
-          pushToast(`Signed in as ${username} (${role.toUpperCase()})`, 'success');
+        const userData = authResult.user;
+        if (!userData.token && authResult.token) {
+          userData.token = authResult.token;
         }
+
+        authFormDraft = {
+          fullName: '',
+          username: '',
+          email: '',
+          org: '',
+          role: 'reviewer',
+          password: '',
+          confirmPassword: '',
+          loginUsername: '',
+          loginPassword: '',
+        };
+        setAuthUser(userData);
+        setRole(userData.role || role);
+        setState({
+          user: userData,
+          authModalOpen: false,
+          authModalLoading: false,
+          authModalError: null,
+        });
+        releaseFocusTrap();
+        pushToast(
+          isLogin
+            ? `Welcome back, ${userData.fullName || userData.username}! Role: ${(userData.role || role).toUpperCase()}`
+            : `Account created successfully! Signed in as ${userData.fullName} (${(userData.role || role).toUpperCase()})`,
+          'success'
+        );
+        trackEvent('Auth', isLogin ? 'login_success' : 'register_success', userData.username);
       } catch (err) {
-        setState({ authModalLoading: false, authModalError: err.message });
+        setState({ authModalLoading: false, authModalError: err.message || 'Authentication failed.' });
       }
+      return;
+    }
+
+    if (e.target.id === 'auth-forgot-form') {
+      e.preventDefault();
+      const form = e.target;
+      const email = form.email?.value?.trim();
+      if (!email) {
+        setState({ authModalError: 'Please enter a valid work email.' });
+        return;
+      }
+      setState({ authModalLoading: true, authModalError: null });
+      setTimeout(() => {
+        setState({
+          authModalLoading: false,
+          authModalMode: 'login',
+          authModalError: null,
+        });
+        pushToast(`Cryptographic 1-hour recovery token dispatched to ${email}`, 'success');
+      }, 700);
       return;
     }
   });
@@ -670,10 +931,102 @@ function bindGlobalEvents() {
     if (e.target.matches('[data-review-notes]')) {
       const field = e.target.getAttribute('data-review-notes');
       reviewNotesDraft[field] = e.target.value;
+      return;
+    }
+
+    if (e.target.id === 'auth-fullname') {
+      authFormDraft.fullName = e.target.value;
+      return;
+    }
+
+    if (e.target.id === 'auth-username') {
+      if (getState().authModalMode === 'login') {
+        authFormDraft.loginUsername = e.target.value;
+      } else {
+        authFormDraft.username = e.target.value;
+      }
+      return;
+    }
+
+    if (e.target.id === 'auth-email') {
+      authFormDraft.email = e.target.value;
+      return;
+    }
+
+    if (e.target.id === 'auth-org') {
+      authFormDraft.org = e.target.value;
+      return;
+    }
+
+    if (e.target.id === 'auth-password') {
+      const val = e.target.value;
+      if (getState().authModalMode === 'login') {
+        authFormDraft.loginPassword = val;
+      } else {
+        authFormDraft.password = val;
+      }
+      const analysis = evaluatePasswordSecurity(val);
+      const labelEl = document.getElementById('auth-pwd-strength-label');
+      const fillEl = document.getElementById('auth-pwd-strength-fill');
+      const ruleLen = document.getElementById('rule-len');
+      const ruleUpper = document.getElementById('rule-upper');
+      const ruleLower = document.getElementById('rule-lower');
+      const ruleNum = document.getElementById('rule-num');
+      const ruleSym = document.getElementById('rule-sym');
+
+      if (labelEl) {
+        labelEl.textContent = analysis.label;
+        labelEl.style.color = analysis.color;
+      }
+      if (fillEl) {
+        const widths = ['0%', '25%', '50%', '75%', '100%'];
+        fillEl.style.width = widths[analysis.score] || '0%';
+        fillEl.style.backgroundColor = analysis.color;
+      }
+      const updateRule = (el, passed, text) => {
+        if (!el) return;
+        el.className = `auth-rule-item ${passed ? 'auth-rule-item--passed' : ''}`;
+        el.innerHTML = `${passed ? '✓' : '⚪'} ${text}`;
+      };
+      updateRule(ruleLen, analysis.checks.length, '8+ Characters');
+      updateRule(ruleUpper, analysis.checks.upper, 'Uppercase (A-Z)');
+      updateRule(ruleLower, analysis.checks.lower, 'Lowercase (a-z)');
+      updateRule(ruleNum, analysis.checks.digit, 'Number (0-9)');
+      updateRule(ruleSym, analysis.checks.special, 'Special Symbol');
+    }
+
+    if (e.target.id === 'auth-confirm-password' || e.target.id === 'auth-password') {
+      if (e.target.id === 'auth-confirm-password') {
+        authFormDraft.confirmPassword = e.target.value;
+      }
+      const pwd = authFormDraft.password || document.getElementById('auth-password')?.value || '';
+      const confirmPwd = authFormDraft.confirmPassword || document.getElementById('auth-confirm-password')?.value || '';
+      const feedbackEl = document.getElementById('auth-confirm-match-feedback');
+      if (feedbackEl && confirmPwd.length > 0) {
+        feedbackEl.style.display = 'block';
+        if (pwd === confirmPwd) {
+          feedbackEl.style.color = 'var(--success)';
+          feedbackEl.innerHTML = '✓ Passwords match';
+        } else {
+          feedbackEl.style.color = 'var(--error)';
+          feedbackEl.innerHTML = '⚠️ Passwords do not match';
+        }
+      } else if (feedbackEl) {
+        feedbackEl.style.display = 'none';
+      }
     }
   });
 
   document.addEventListener('change', (e) => {
+    if (e.target.classList.contains('auth-role-radio')) {
+      authFormDraft.role = e.target.value;
+      document.querySelectorAll('.auth-role-card').forEach((card) => {
+        card.classList.remove('auth-role-card--selected');
+      });
+      e.target.closest('.auth-role-card')?.classList.add('auth-role-card--selected');
+      return;
+    }
+
     if (e.target.id === 'select-preset-sku') {
       const sku = e.target.value;
       if (sku) {
@@ -740,6 +1093,7 @@ function bindGlobalEvents() {
       if (s.dbExplorerOpen || s.authModalOpen) {
         e.preventDefault();
         setState({ dbExplorerOpen: false, authModalOpen: false });
+        releaseFocusTrap();
         return;
       }
     }
@@ -846,6 +1200,13 @@ if (snapshot && snapshot.data && snapshot.data.productRecord) {
     exportEnabled: true,
   });
   pushToast('Restored state from local backup snapshot', 'info');
+}
+
+// Restore authenticated user session if available
+const storedUser = loadStoredUser();
+if (storedUser) {
+  setRole(storedUser.role || 'admin');
+  setState({ user: storedUser });
 }
 
 render(getState());

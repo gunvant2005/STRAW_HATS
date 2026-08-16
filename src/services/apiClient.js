@@ -5,10 +5,12 @@ import { config } from '../config.js';
  * Connects frontend workspace to backend REST server.
  */
 
-let authToken = localStorage.getItem('pi_auth_token') || null;
+// Token is read lazily inside request() so that tokens set after
+// module initialization (e.g. from loadStoredUser) are always picked up.
+let _authToken = null;
 
 export function setAuthToken(token) {
-  authToken = token;
+  _authToken = token;
   if (token) {
     localStorage.setItem('pi_auth_token', token);
   } else {
@@ -17,7 +19,10 @@ export function setAuthToken(token) {
 }
 
 export function getAuthToken() {
-  return authToken;
+  if (_authToken) return _authToken;
+  // Lazy-load from storage on first access
+  _authToken = localStorage.getItem('pi_auth_token') || null;
+  return _authToken;
 }
 
 async function request(endpoint, options = {}, retries = 1) {
@@ -25,9 +30,10 @@ async function request(endpoint, options = {}, retries = 1) {
     ? config.apiBaseUrl
     : 'http://localhost:5000/api/v1';
 
+  const token = getAuthToken();
   const headers = {
     'Content-Type': 'application/json',
-    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(options.headers || {}),
   };
 

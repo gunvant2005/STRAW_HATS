@@ -59,9 +59,21 @@ export function Header(state) {
         <button type="button" class="btn btn--secondary btn--sm" data-action="open-db-explorer" title="Open Saved Product Database Explorer">
           🗄️ DB Explorer
         </button>
-        <button type="button" class="btn btn--secondary btn--sm" data-action="open-auth-modal" title="User Sign In / Authentication">
-          🔐 ${state.user ? escapeHtml(state.user.username) : 'Sign In'}
-        </button>
+        ${
+          state.user
+            ? `
+          <button type="button" class="btn btn--secondary btn--sm app-header__user-btn" data-action="open-auth-modal" data-mode="profile" title="Signed in as ${escapeHtml(state.user.fullName || state.user.username)} (${(state.user.role || role).toUpperCase()}) · Click to view active session">
+            <span class="app-header__user-avatar">${escapeHtml(((state.user.fullName || state.user.username || 'U').split(' ').map(n=>n[0]).join('').slice(0, 2)).toUpperCase())}</span>
+            <span class="app-header__user-name">${escapeHtml(state.user.username)}</span>
+            <span class="badge badge--accent" style="font-size:10px;padding:1px 5px">${(state.user.role || role).toUpperCase()}</span>
+          </button>
+        `
+            : `
+          <button type="button" class="btn btn--secondary btn--sm" data-action="open-auth-modal" data-mode="login" title="User Sign In / Registration">
+            🔐 Sign In
+          </button>
+        `
+        }
         <span class="badge badge--success" style="font-size:11px" title="Auto-saved state snapshot enabled">✓ Auto-saved</span>
         
         <div class="role-selector" title="Switch User Role to test RBAC permissions">

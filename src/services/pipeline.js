@@ -10,20 +10,35 @@ import {
 
 let runToken = 0;
 let timers = [];
+let pendingCancels = [];
 
 function delay(ms, token) {
   return new Promise((resolve, reject) => {
-    const id = setTimeout(() => {
+    let timerId;
+    const cancelFn = () => {
+      clearTimeout(timerId);
+      reject(new Error('cancelled'));
+    };
+    timerId = setTimeout(() => {
+      pendingCancels = pendingCancels.filter((fn) => fn !== cancelFn);
       if (token !== runToken) reject(new Error('cancelled'));
       else resolve();
     }, ms);
-    timers.push(id);
+    timers.push(timerId);
+    pendingCancels.push(cancelFn);
   });
 }
 
 function clearTimers() {
   timers.forEach(clearTimeout);
   timers = [];
+  const cancels = [...pendingCancels];
+  pendingCancels = [];
+  cancels.forEach((fn) => {
+    try {
+      fn();
+    } catch {}
+  });
 }
 
 function stepDelay(baseMs) {
