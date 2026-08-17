@@ -38,17 +38,29 @@ export function InputWorkspace(state) {
               aria-invalid="${inputErrors.sku ? 'true' : 'false'}"
               aria-describedby="sku-hint sku-error"
             />
-            <span id="sku-hint" class="hint">Demo SKUs: HEX-M12-50 · BB-6205-2RS · IV-GATE-150</span>
+            <span id="sku-hint" class="hint">Demo SKUs: DCB518ASTS06G · 49-94-0013 · 1700-1PK-BB40 · KDFM404KPS · FF7011WN · HEX-M12-50</span>
             <div class="demo-hints" role="group" aria-label="Load demo product">
               <select id="select-preset-sku" class="custom-select select-animated select--sm" aria-label="Select product template" ${busy ? 'disabled' : ''}>
-                <option value="" disabled selected>⚡ Select Demo Product Preset…</option>
-                <option value="HEX-M12-50">Hex Bolt M12×50 (Fasteners)</option>
-                <option value="BB-6205-2RS">Ball Bearing 6205-2RS (Bearings)</option>
-                <option value="IV-GATE-150">Industrial Gate Valve 150 (Valves)</option>
+                <option value="" disabled selected>⚡ Select Sample Dataset Preset…</option>
+                <optgroup label="Sample Dataset (Google Sheet)">
+                  <option value="DCB518ASTS06G">DCB518ASTS06G — Diablo 1/2"x18" Sanding Belt (Freud)</option>
+                  <option value="49-94-0013">49-94-0013 — Milwaukee 5" Cut Off Disc (Milwaukee)</option>
+                  <option value="3MABR-7100075678">3MABR-7100075678 — 3M Cubitron II Stikit Film Disc (3M)</option>
+                  <option value="1700-1PK-BB40">1700-1PK-BB40 — 3M 3/4"x60' Vinyl Elect Tape (3M)</option>
+                  <option value="KDFM404KPS">KDFM404KPS — KitchenAid Stainless Dishwasher</option>
+                  <option value="FF7011WN">FF7011WN — Speed Queen Washer White</option>
+                  <option value="ADB15516CS">ADB15516CS — TimberTech Azek PVC Decking</option>
+                </optgroup>
+                <optgroup label="Core Reference Templates">
+                  <option value="HEX-M12-50">HEX-M12-50 — Hex Bolt M12×50 (Fasteners)</option>
+                  <option value="BB-6205-2RS">BB-6205-2RS — Ball Bearing 6205-2RS (Bearings)</option>
+                  <option value="IV-GATE-150">IV-GATE-150 — Industrial Gate Valve 150 (Valves)</option>
+                </optgroup>
               </select>
+              <button type="button" class="demo-chip" data-action="demo-sku" data-sku="DCB518ASTS06G" ${busy ? 'disabled' : ''}>🪵 Diablo Belt</button>
+              <button type="button" class="demo-chip" data-action="demo-sku" data-sku="49-94-0013" ${busy ? 'disabled' : ''}>🪩 Milw Disc</button>
+              <button type="button" class="demo-chip" data-action="demo-sku" data-sku="1700-1PK-BB40" ${busy ? 'disabled' : ''}>⚡ 3M Tape</button>
               <button type="button" class="demo-chip" data-action="demo-sku" data-sku="HEX-M12-50" ${busy ? 'disabled' : ''}>🔩 HEX-M12-50</button>
-              <button type="button" class="demo-chip" data-action="demo-sku" data-sku="BB-6205-2RS" ${busy ? 'disabled' : ''}>⚙️ BB-6205-2RS</button>
-              <button type="button" class="demo-chip" data-action="demo-sku" data-sku="IV-GATE-150" ${busy ? 'disabled' : ''}>🚰 IV-GATE-150</button>
             </div>
             ${inputErrors.sku ? `<span id="sku-error" class="field-error">${escapeHtml(inputErrors.sku)}</span>` : '<span id="sku-error" class="sr-only"></span>'}
           </div>

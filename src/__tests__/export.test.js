@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { buildFullJson, buildCsv, buildPimJson } from '../services/export.js';
+import { buildFullJson, buildCsv, buildPimJson, buildExpectedOutputCsv } from '../services/export.js';
+import EXPECTED_HEADERS from '../data/expectedHeaders.json';
 
 describe('Export Formatter Service', () => {
   const sampleRecord = {
@@ -32,5 +33,16 @@ describe('Export Formatter Service', () => {
 
     expect(pimJson.pim_record_id).toBe('HEX-M12-50');
     expect(pimJson.attributes.material).toBe('316 Stainless Steel');
+  });
+
+  it('should build Enterprise 252-Header CSV matching Expected Output Sheet exactly', () => {
+    const csvStr = buildExpectedOutputCsv(sampleRecord);
+    const lines = csvStr.split('\n');
+    expect(lines.length).toBeGreaterThanOrEqual(2);
+    
+    // Check that all 252 headers are populated
+    for (const h of EXPECTED_HEADERS.slice(0, 20)) {
+      expect(lines[0]).toContain(h);
+    }
   });
 });

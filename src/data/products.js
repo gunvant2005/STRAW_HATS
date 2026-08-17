@@ -745,17 +745,19 @@ const genericFastener = {
   reviewFields: ['sku', 'title', 'material', 'brand'],
 };
 
-export const PRODUCTS = [hexBolt, ballBearing, gateValve];
+import { DATASET_PRODUCTS } from './sampleDataset.js';
+
+export const PRODUCTS = [hexBolt, ballBearing, gateValve, ...DATASET_PRODUCTS];
 
 export function matchProduct(query) {
   const q = (query || '').trim().toLowerCase();
   if (!q) return genericFastener;
 
   for (const product of PRODUCTS) {
-    if (product.matchKeys.some((key) => q.includes(key) || key.includes(q))) {
+    if (product.fields.sku.value.toLowerCase() === q) {
       return product;
     }
-    if (product.fields.sku.value.toLowerCase() === q) {
+    if (product.matchKeys.some((key) => key && (q === key || q.includes(key) || key.includes(q)))) {
       return product;
     }
   }

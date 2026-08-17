@@ -46,7 +46,7 @@ export function ExportSection(state) {
                   <strong>Record ready for handoff.</strong> Validation and review metadata included.
                 </div>`
           }
-          <div class="export-grid">
+          <div class="export-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))">
             <div class="export-card">
               <div style="color:var(--accent)">${jsonIcon}</div>
               <h3>Full JSON</h3>
@@ -63,6 +63,15 @@ export function ExportSection(state) {
               <div class="btn-group">
                 <button type="button" class="btn btn--secondary btn--sm" data-action="export-csv">Download</button>
                 <button type="button" class="btn btn--ghost btn--sm" data-action="copy-export" data-format="csv" title="Copy CSV to clipboard">${copyIcon} Copy</button>
+              </div>
+            </div>
+            <div class="export-card">
+              <div style="color:var(--warning)">${csvIcon}</div>
+              <h3>Enterprise 252-Header CSV</h3>
+              <p>100% compliant export matching the Expected Output Sheet (252 static headers).</p>
+              <div class="btn-group">
+                <button type="button" class="btn btn--primary btn--sm" data-action="export-expected-csv">Download</button>
+                <button type="button" class="btn btn--ghost btn--sm" data-action="copy-export" data-format="expected" title="Copy Expected CSV to clipboard">${copyIcon} Copy</button>
               </div>
             </div>
             <div class="export-card">

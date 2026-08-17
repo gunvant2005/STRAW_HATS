@@ -26,9 +26,11 @@ import {
   exportJson,
   exportCsv,
   exportPim,
+  exportExpectedCsv,
   buildFullJson,
   buildCsv,
   buildPimJson,
+  buildExpectedOutputCsv,
 } from './services/export.js';
 import { PRODUCTS } from './data/products.js';
 
@@ -687,6 +689,7 @@ function bindGlobalEvents() {
       let payload = '';
       if (format === 'json') payload = JSON.stringify(buildFullJson(), null, 2);
       else if (format === 'csv') payload = buildCsv();
+      else if (format === 'expected') payload = buildExpectedOutputCsv();
       else if (format === 'pim') payload = JSON.stringify(buildPimJson(), null, 2);
       const ok = await copyToClipboard(payload);
       pushToast(
@@ -769,6 +772,13 @@ function bindGlobalEvents() {
       flushReviewNotesToState();
       exportCsv();
       pushToast('CSV export downloaded', 'success');
+      return;
+    }
+
+    if (action === 'export-expected-csv') {
+      flushReviewNotesToState();
+      exportExpectedCsv();
+      pushToast('Enterprise 252-Header CSV export downloaded', 'success');
       return;
     }
 

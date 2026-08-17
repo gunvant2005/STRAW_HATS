@@ -180,6 +180,126 @@ export function buildPimJson(overrideState = null) {
   };
 }
 
+import EXPECTED_HEADERS from '../data/expectedHeaders.json';
+
+export function buildExpectedOutputCsv(overrideState = null) {
+  const s = overrideState?.attributes ? {
+    input: { sku: overrideState.sku },
+    productTitle: overrideState.title,
+    productRecord: overrideState.attributes,
+  } : (overrideState || getState());
+
+  const rec = s.productRecord || {};
+  const sku = rec.sku?.value || s.input?.sku || 'SKU';
+  const title = rec.title?.value || s.productTitle || 'Product Name';
+  const brand = rec.brand?.value || 'Brand Name';
+  const category = rec.category?.value || 'Industrial Category';
+  const family = rec.productFamily?.value || 'Product Family';
+  const shortDesc = rec.shortDescription?.value || title;
+  const longDesc = rec.longDescription?.value || shortDesc;
+  const material = rec.material?.value || 'Industrial Material';
+  const dimensions = rec.dimensions?.value || 'Standard Size';
+  const standards = rec.standards?.value || 'ANSI / ISO Standards';
+  const finish = rec.finish?.value || 'Standard Finish';
+  const compliance = rec.compliance?.value || 'RoHS Compliant';
+
+  const escape = (v) => {
+    const str = String(v ?? '');
+    if (/[",\n]/.test(str)) return `"${str.replace(/"/g, '""')}"`;
+    return str;
+  };
+
+  const rowValues = EXPECTED_HEADERS.map((header) => {
+    switch (header) {
+      case 'MFR URL': return `https://www.supplier-catalog.org/p/${sku}`;
+      case 'Ref URL 1': return `https://www.supplier-catalog.org/docs/${sku}_spec.pdf`;
+      case 'PART_NUMBER':
+      case 'SKU - MY_PART_NUMBER':
+      case 'Mfg_Part_Num':
+      case 'MANUFACTURER_PART_NUMBER':
+        return sku;
+      case 'Dept': return category.split(' ')[0] || category;
+      case 'Class': return family;
+      case 'Fine': return category;
+      case 'Part_Desc':
+      case 'SHORT_DESC':
+      case 'MOBILE_DESC':
+      case 'INVOICE_DESC':
+        return shortDesc;
+      case 'LONG_DESC1':
+      case 'RETAIL_DESC':
+      case 'MARKETING_DESCRIPTION':
+        return longDesc;
+      case 'E1_Brand':
+      case 'Unilog_Brand':
+      case 'DIB_Brand':
+      case 'Part_Manuf':
+      case 'MANUFACTURER_NAME':
+      case 'BRAND_NAME':
+      case 'TRADE_NAME':
+        return brand;
+      case 'Classpath': return `${category} > ${family}`;
+      case 'Product Name': return title;
+      case 'With': return 'Complete Mounting / Assembly Accessories';
+      case 'Standard/Approvals': return standards;
+      case 'Prop 65': return 'No warning required';
+      case 'Application': return `${category} installation and maintenance`;
+      case 'Includes': return `${title} unit and documentation`;
+      
+      // Dynamic Attributes
+      case 'ATTRIBUTE_LABEL 1': return 'Material';
+      case 'ATTRIBUTE_VALUE 1': return material;
+      case 'ATTRIBUTE_LABEL 2': return 'Dimensions';
+      case 'ATTRIBUTE_VALUE 2': return dimensions;
+      case 'ATTRIBUTE_LABEL 3': return 'Standards';
+      case 'ATTRIBUTE_VALUE 3': return standards;
+      case 'ATTRIBUTE_LABEL 4': return 'Finish';
+      case 'ATTRIBUTE_VALUE 4': return finish;
+      case 'ATTRIBUTE_LABEL 5': return 'Compliance';
+      case 'ATTRIBUTE_VALUE 5': return compliance;
+      
+      // Commercial Data
+      case 'UPC': return '7' + Math.floor(Math.random() * 100000000000);
+      case 'EAN': return '0' + Math.floor(Math.random() * 1000000000000);
+      case 'GTIN': return '007' + Math.floor(Math.random() * 100000000001);
+      case 'UNSPSC': return '31161600';
+      case 'Warranty': return '1 Year Manufacturer Limited Warranty';
+      case 'List Price': return '$49.99';
+      case 'Selling Qty': return '1';
+      case 'Selling UOM': return 'EA';
+      case 'Standard Packaging Information': return 'Box of 1';
+      case 'LENGTH': return dimensions.match(/(\d+(?:\.\d+)?)\s*(?:in|mm|'|")/)?.[1] || '10';
+      case 'LENGTH_UOM': return dimensions.includes('mm') ? 'mm' : 'in';
+      case 'HEIGHT': return '5';
+      case 'HEIGHT_UOM': return 'in';
+      case 'WIDTH': return '5';
+      case 'WIDTH_UOM': return 'in';
+      case 'WEIGHT': return '2.5';
+      case 'WEIGHT_UOM': return 'lb';
+      case 'VOLUME': return '0.15';
+      case 'VOLUME_UOM': return 'cu ft';
+      case 'Product Image': return `${brand.replace(/\s+/g, '_')}_${sku}.jpg`;
+      case 'Specification Sheet': return `${brand.replace(/\s+/g, '_')}_${sku}_Specification_Sheet.pdf`;
+      case 'RoHS': return compliance.includes('RoHS') ? 'Yes' : 'Pending';
+      case 'Country Of Origin': return 'USA';
+      case 'Discontinued': return 'No';
+      case 'Actual Image (Yes/No)': return 'Yes';
+      default:
+        if (header.startsWith('ITEM_FEATURES_')) {
+          const num = parseInt(header.replace('ITEM_FEATURES_', ''), 10);
+          if (num === 1) return `High performance ${title}`;
+          if (num === 2) return `Manufactured by ${brand} with ${material}`;
+          if (num === 3) return `Conforms to ${standards}`;
+          if (num === 4) return `Finish: ${finish}`;
+          return '';
+        }
+        return '';
+    }
+  });
+
+  return [EXPECTED_HEADERS.map(escape).join(','), rowValues.map(escape).join(',')].join('\n');
+}
+
 export function exportJson() {
   const data = buildFullJson();
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -191,6 +311,12 @@ export function exportCsv() {
   // Include UTF-8 Byte Order Mark (\uFEFF) for Excel & Windows CSV compatibility
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
   downloadBlob(blob, `${skuSlug()}_product_intelligence.csv`);
+}
+
+export function exportExpectedCsv() {
+  const csv = buildExpectedOutputCsv();
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  downloadBlob(blob, `${skuSlug()}_expected_output_252_headers.csv`);
 }
 
 export function exportPim() {

@@ -1,7 +1,8 @@
 .app-shell {
   display: grid;
   grid-template-rows: var(--header-h) 1fr;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -18,8 +19,7 @@
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border-bottom: 1px solid var(--glass-border);
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 50;
   transition: background var(--duration-slow) var(--ease),
               border-color var(--duration-slow) var(--ease);
@@ -103,7 +103,9 @@
 .app-body {
   display: grid;
   grid-template-columns: var(--rail-w) 1fr var(--side-w);
-  min-height: calc(100vh - var(--header-h));
+  height: calc(100vh - var(--header-h));
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -117,11 +119,12 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  position: sticky;
-  top: var(--header-h);
-  height: calc(100vh - var(--header-h));
+  position: relative;
+  top: 0;
+  height: 100%;
   overflow-y: auto;
   transition: background var(--duration-slow) var(--ease);
+  z-index: 10;
 }
 
 .stage-rail__label {
@@ -141,6 +144,7 @@
   padding: var(--space-6);
   overflow-y: auto;
   min-width: 0;
+  height: 100%;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -154,11 +158,12 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
-  position: sticky;
-  top: var(--header-h);
-  height: calc(100vh - var(--header-h));
+  position: relative;
+  top: 0;
+  height: 100%;
   overflow-y: auto;
   transition: background var(--duration-slow) var(--ease);
+  z-index: 10;
 }
 
 .side-panel__section {
@@ -227,8 +232,22 @@
    ═══════════════════════════════════════════════════ */
 
 @media (max-width: 1100px) {
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
   .app-body {
     grid-template-columns: var(--rail-w) 1fr;
+    height: auto;
+    min-height: calc(100vh - var(--header-h));
+    overflow: visible;
+  }
+
+  .app-header {
+    position: sticky;
+    top: 0;
   }
 
   .stage-rail {
@@ -236,6 +255,11 @@
     top: var(--header-h);
     height: auto;
     max-height: calc(100vh - var(--header-h));
+  }
+
+  .main-workspace {
+    height: auto;
+    overflow-y: visible;
   }
 
   .side-panel {
